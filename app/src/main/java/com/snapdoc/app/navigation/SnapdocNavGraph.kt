@@ -1,13 +1,11 @@
 package com.snapdoc.app.navigation
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -44,10 +42,31 @@ fun SnapdocNavGraph() {
     val currentRoute = backStack?.destination?.route.orEmpty()
     val showNav = currentRoute in bottomNavItems.map { it.route }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    // Outer Scaffold owns the bottom-nav slot so per-screen Scaffolds can use
+    // their own bottomBar (e.g. Home's banner ad) without colliding with it.
+    Scaffold(
+        bottomBar = {
+            if (showNav) {
+                SnapdocBottomNav(
+                    items = bottomNavItems,
+                    selectedRoute = currentRoute,
+                    onSelect = { item ->
+                        if (item.route != currentRoute) {
+                            navController.navigate(item.route) {
+                                popUpTo(SnapdocRoute.Home.path) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                    },
+                )
+            }
+        },
+    ) { outerPadding ->
         NavHost(
             navController = navController,
             startDestination = SnapdocRoute.Splash.path,
+            modifier = Modifier.padding(outerPadding),
         ) {
             composable(SnapdocRoute.Splash.path) {
                 SplashScreen(onNavigate = { target ->
@@ -125,29 +144,6 @@ fun SnapdocNavGraph() {
 
             composable(SnapdocRoute.About.path) {
                 AboutScreen(onBack = { navController.popBackStack() })
-            }
-        }
-
-        if (showNav) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(PaddingValues()),
-                contentAlignment = androidx.compose.ui.Alignment.BottomCenter,
-            ) {
-                SnapdocBottomNav(
-                    items = bottomNavItems,
-                    selectedRoute = currentRoute,
-                    onSelect = { item ->
-                        if (item.route != currentRoute) {
-                            navController.navigate(item.route) {
-                                popUpTo(SnapdocRoute.Home.path) { saveState = true }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        }
-                    },
-                )
             }
         }
     }

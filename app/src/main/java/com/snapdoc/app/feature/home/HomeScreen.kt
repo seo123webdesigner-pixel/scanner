@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.snapdoc.app.core.ads.BannerAd
 import com.snapdoc.app.core.ui.components.DocumentCard
 import com.snapdoc.app.core.ui.components.EmptyState
 import com.snapdoc.app.core.ui.components.IconOnlyButton
@@ -68,6 +69,7 @@ fun HomeScreen(
                 Icon(Icons.Outlined.DocumentScanner, contentDescription = "Scan", modifier = Modifier.size(24.dp))
             }
         },
+        bottomBar = { BannerAd() },
     ) { padding ->
         if (state.loading) {
             Box(modifier = Modifier.fillMaxSize().padding(padding))

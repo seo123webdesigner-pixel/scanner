@@ -1,8 +1,10 @@
 package com.snapdoc.app.feature.scanner
 
+import android.app.Activity
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.snapdoc.app.core.ads.AdsManager
 import com.snapdoc.app.core.data.model.BuiltInCategory
 import com.snapdoc.app.core.data.repository.DocumentRepository
 import com.snapdoc.app.core.data.repository.NewPage
@@ -46,7 +48,17 @@ class SaveDocumentViewModel @Inject constructor(
     private val ocrEngine: OcrEngine,
     private val gemini: GeminiClient,
     private val prefs: UserPreferences,
+    private val ads: AdsManager,
 ) : ViewModel() {
+
+    /**
+     * Triggers the post-save interstitial. Caller is the composable, which
+     * owns the Activity reference — VMs intentionally don't hold one.
+     * Short-circuits internally for Remove Ads owners.
+     */
+    suspend fun maybeShowInterstitial(activity: Activity) {
+        ads.maybeShowInterstitial(activity)
+    }
 
     private val _state = MutableStateFlow(SaveUiState())
     val state: StateFlow<SaveUiState> = _state.asStateFlow()
