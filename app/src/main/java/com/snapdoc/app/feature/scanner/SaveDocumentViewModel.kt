@@ -75,9 +75,11 @@ class SaveDocumentViewModel @Inject constructor(
                 val autoOcr = prefs.autoOcr.first()
                 val ocrText: String = if (autoOcr && pageFiles.isNotEmpty()) {
                     runCatching {
-                        pageFiles.joinToString("\n\n") { file ->
-                            ocrEngine.extractText(Uri.fromFile(file))
+                        val parts = mutableListOf<String>()
+                        for (file in pageFiles) {
+                            parts += ocrEngine.extractText(Uri.fromFile(file))
                         }
+                        parts.joinToString("\n\n")
                     }.getOrElse {
                         Timber.w(it, "OCR failed; saving without text index")
                         ""
