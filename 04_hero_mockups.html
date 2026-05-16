@@ -1,0 +1,2335 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Snapdoc — Hero Mockups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ============ TOKENS ============ */
+  /* Light mode tokens — exactly as defined in 02_design_system.md §2.1 */
+  .mode-light {
+    --bg:#FAFAF8;
+    --surface:#FFFFFF;
+    --surfaceVariant:#F2F1ED;
+    --surfaceSunken:#F5F4F0;
+    --primary:#111111;
+    --primaryContainer:#1F1F1F;
+    --onPrimary:#FFFFFF;
+    --secondary:#5A5A5A;
+    --accent:#B45309;
+    --textPrimary:#111111;
+    --textSecondary:#5A5A5A;
+    --textTertiary:#8B8A85;
+    --textDisabled:#A3A29E;
+    --border:#E5E4DF;
+    --divider:#EDECE7;
+    --success:#15803D;
+    --warning:#B45309;
+    --error:#B42318;
+    --info:#1F6FEB;
+    --scrim:rgba(17,17,17,0.45);
+
+    --catBills:#B45309;
+    --catIDs:#1F6FEB;
+    --catReceipts:#15803D;
+    --catNotes:#6D28D9;
+    --catContracts:#B42318;
+    --catOther:#57534E;
+
+    --catBillsText:#92400E;
+    --catIDsText:#1E40AF;
+    --catReceiptsText:#166534;
+    --catNotesText:#5B21B6;
+    --catContractsText:#991B1B;
+    --catOtherText:#44403C;
+
+    --shadow1:0 1px 2px rgba(17,17,17,0.04);
+    --shadow2:0 2px 6px rgba(17,17,17,0.06);
+    --shadow3:0 4px 12px rgba(17,17,17,0.08);
+    --shadow4:0 8px 24px rgba(17,17,17,0.10);
+    --shadow5:0 16px 40px rgba(17,17,17,0.14);
+
+    --statusFG:#111111;
+    --statusBG:transparent;
+  }
+  /* Dark mode — independently tuned per §2.2 */
+  .mode-dark {
+    --bg:#0C0C0D;
+    --surface:#141416;
+    --surfaceVariant:#1C1C1F;
+    --surfaceSunken:#08080A;
+    --primary:#F4F4F1;
+    --primaryContainer:#E0DFDA;
+    --onPrimary:#111111;
+    --secondary:#A3A29E;
+    --accent:#D97706;
+    --textPrimary:#F4F4F1;
+    --textSecondary:#9A9A95;
+    --textTertiary:#6E6E69;
+    --textDisabled:#56565A;
+    --border:#26262A;
+    --divider:#1F1F22;
+    --success:#4ADE80;
+    --warning:#FBBF24;
+    --error:#F87171;
+    --info:#60A5FA;
+    --scrim:rgba(0,0,0,0.6);
+
+    --catBills:#D97706;
+    --catIDs:#60A5FA;
+    --catReceipts:#4ADE80;
+    --catNotes:#A78BFA;
+    --catContracts:#F87171;
+    --catOther:#A8A29E;
+
+    --catBillsText:#FBBF24;
+    --catIDsText:#93C5FD;
+    --catReceiptsText:#86EFAC;
+    --catNotesText:#C4B5FD;
+    --catContractsText:#FCA5A5;
+    --catOtherText:#D6D3D1;
+
+    --shadow1:0 1px 2px rgba(0,0,0,0.4);
+    --shadow2:0 2px 6px rgba(0,0,0,0.5);
+    --shadow3:0 4px 12px rgba(0,0,0,0.6);
+    --shadow4:0 8px 24px rgba(0,0,0,0.65);
+    --shadow5:0 16px 40px rgba(0,0,0,0.7);
+
+    --statusFG:#F4F4F1;
+    --statusBG:transparent;
+  }
+
+  /* ============ PAGE CHROME ============ */
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin:0; padding:0; }
+  body {
+    font-family: 'Geist', 'Inter', system-ui, sans-serif;
+    background:#E8E7E2;
+    color:#111;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    padding: 56px 32px 120px;
+  }
+  .page-header {
+    max-width: 1280px;
+    margin: 0 auto 48px;
+  }
+  .page-title {
+    font-family:'Geist','Inter',sans-serif;
+    font-weight:600;
+    font-size:32px;
+    letter-spacing:-0.02em;
+    margin:0 0 8px;
+    color:#111;
+  }
+  .page-sub {
+    font-size:14px;
+    color:#5A5A5A;
+    margin:0;
+    max-width: 720px;
+    line-height: 22px;
+  }
+  .legend {
+    margin-top:24px;
+    display:flex;
+    gap:24px;
+    font-size:12px;
+    color:#5A5A5A;
+    font-family:'Geist Mono','Inter',monospace;
+  }
+  .legend span::before {
+    content:'';
+    display:inline-block;
+    width:10px; height:10px;
+    border-radius:50%;
+    margin-right:8px;
+    vertical-align:middle;
+  }
+  .legend .l-light::before { background:#FAFAF8; border:1px solid #E5E4DF;}
+  .legend .l-dark::before  { background:#0C0C0D;}
+
+  .grid {
+    max-width: 1280px;
+    margin: 0 auto;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px 56px;
+  }
+  .section {
+    grid-column: 1 / -1;
+    display:flex; align-items:flex-end; justify-content:space-between;
+    padding-top:32px;
+    border-top:1px solid #D2D1CC;
+  }
+  .section h2 {
+    font-family:'Geist','Inter',sans-serif;
+    font-weight:600;
+    font-size:18px;
+    letter-spacing:-0.01em;
+    margin:0;
+    color:#111;
+  }
+  .section .num {
+    font-family:'Geist Mono','Inter',monospace;
+    font-size:11px;
+    color:#8B8A85;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+  }
+  .pair { display:flex; flex-direction:column; gap:14px; }
+  .pair-label {
+    font-family:'Geist Mono','Inter',monospace;
+    font-size:11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:#8B8A85;
+  }
+
+  /* ============ DEVICE FRAME ============ */
+  .device {
+    width: 360px;
+    height: 760px;
+    background: var(--bg);
+    color: var(--textPrimary);
+    border-radius: 36px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 24px 64px rgba(17,17,17,0.18), 0 2px 8px rgba(17,17,17,0.08);
+    font-family: 'Geist', 'Inter', system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 20px;
+    -webkit-font-smoothing: antialiased;
+    /* 1dp outer ring on the bezel */
+    outline: 1px solid rgba(17,17,17,0.06);
+    outline-offset: -0.5px;
+  }
+  .device.tall { height: 800px; }
+
+  /* Status bar — Android pattern */
+  .statusbar {
+    height: 28px;
+    padding: 0 20px;
+    display:flex; align-items:center; justify-content:space-between;
+    color: var(--statusFG);
+    font-family:'Geist Mono','Inter',monospace;
+    font-size:12px;
+    font-weight:500;
+    letter-spacing:0.02em;
+    background: var(--statusBG);
+    position: relative;
+    z-index: 5;
+  }
+  .statusbar .right {
+    display:flex; align-items:center; gap:6px;
+  }
+  .statusbar svg { display:block; }
+
+  /* Bottom gesture bar */
+  .gesturebar {
+    position:absolute;
+    left:0; right:0; bottom:0;
+    height:14px;
+    display:flex; align-items:center; justify-content:center;
+    pointer-events:none;
+  }
+  .gesturebar::after {
+    content:'';
+    width: 108px; height:4px;
+    border-radius: 999px;
+    background: var(--textPrimary);
+    opacity: 0.4;
+  }
+  /* When bottom is dark (like camera), bar becomes light */
+  .gesturebar.invert::after { background:#FFFFFF; opacity:0.6; }
+
+  /* ============ APP BAR ============ */
+  .appbar {
+    height: 56px;
+    padding: 0 8px 0 16px;
+    display:flex; align-items:center; gap:12px;
+    background: var(--bg);
+    position: relative;
+    z-index: 4;
+  }
+  .appbar.scrolled { box-shadow: 0 1px 0 var(--divider); }
+  .appbar .title {
+    font-size:18px; line-height:26px; font-weight:500;
+    letter-spacing:-0.01em;
+    color: var(--textPrimary);
+    flex:1;
+  }
+  .appbar .wordmark {
+    font-size:18px; line-height:26px; font-weight:500;
+    letter-spacing:-0.01em;
+    color: var(--textPrimary);
+    flex:1;
+  }
+  .appbar .actions { display:flex; align-items:center; gap:0; }
+  .iconbtn {
+    width:48px; height:48px;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    color: var(--textPrimary);
+  }
+  .iconbtn.muted { color: var(--textSecondary); }
+
+  /* ============ BUTTONS ============ */
+  .btn-primary {
+    height:48px;
+    padding:0 16px;
+    border-radius:8px;
+    background: var(--primary);
+    color: var(--onPrimary);
+    border:none;
+    font: inherit;
+    font-size:14px; font-weight:500;
+    letter-spacing:0.005em;
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    width:100%;
+  }
+  .btn-secondary {
+    height:48px;
+    padding:0 16px;
+    border-radius:8px;
+    background: var(--surface);
+    color: var(--textPrimary);
+    border:1px solid var(--border);
+    font: inherit;
+    font-size:14px; font-weight:500;
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    width:100%;
+  }
+  .btn-ghost {
+    height:36px;
+    padding:0 12px;
+    border-radius:8px;
+    background:transparent;
+    color: var(--textPrimary);
+    border:none;
+    font: inherit;
+    font-size:14px; font-weight:500;
+    display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  }
+  .btn-ghost.accent { color: var(--accent); }
+
+  /* ============ DOCUMENT CARD ============ */
+  .doc-card {
+    background: var(--surface);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow1);
+    padding: 14px 14px 14px 16px;
+    display:flex; gap:12px;
+    position:relative;
+    overflow:hidden;
+  }
+  .mode-dark .doc-card { border-color: transparent; }
+  .doc-card .strip {
+    position:absolute; left:0; top:0; bottom:0;
+    width:2px;
+  }
+  .thumb {
+    width:56px; height:72px;
+    border-radius:4px;
+    background: var(--surfaceSunken);
+    border:1px solid var(--border);
+    flex-shrink:0;
+    display:flex; flex-direction:column; gap:4px;
+    padding:7px 6px;
+    overflow:hidden;
+  }
+  .mode-dark .thumb { border-color: var(--border); background:#101012; }
+  .thumb .ln {
+    height:1.5px; background: var(--textTertiary); border-radius:1px; opacity:0.42;
+  }
+  .thumb .ln.short { width:60%; }
+  .thumb .ln.shorter { width:40%; }
+  .thumb .ln.head { background: var(--textPrimary); opacity:0.85; height:2.5px; width:80%; margin-bottom:2px; }
+
+  .doc-card .body {
+    flex:1; min-width:0;
+    display:flex; flex-direction:column;
+  }
+  .doc-card .filename {
+    font-size:16px; line-height:22px;
+    font-weight:500;
+    color: var(--textPrimary);
+    letter-spacing:-0.005em;
+    margin-bottom:4px;
+    overflow:hidden;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+  }
+  .doc-card .meta {
+    font-size:12px; line-height:16px;
+    color: var(--textTertiary);
+    font-variant-numeric: tabular-nums;
+    margin-bottom:8px;
+  }
+  .chip {
+    display:inline-flex; align-items:center; gap:6px;
+    align-self:flex-start;
+    background: var(--surfaceVariant);
+    height:22px;
+    padding: 0 8px;
+    border-radius: 4px;
+    font-size:12px; line-height:1; font-weight:500;
+    letter-spacing:0.01em;
+  }
+  .chip .dot { width:6px; height:6px; border-radius:999px; }
+
+  /* ============ BOTTOM NAV ============ */
+  .bottomnav {
+    position:absolute;
+    left:0; right:0; bottom:14px;
+    height:64px;
+    background: var(--surface);
+    border-top: 1px solid var(--divider);
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-items:center;
+    z-index:3;
+  }
+  .mode-dark .bottomnav { border-top-color: transparent; box-shadow: 0 -1px 0 rgba(255,255,255,0.04); }
+  .navitem {
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    color: var(--textSecondary);
+  }
+  .navitem.active { color: var(--textPrimary); }
+  .navitem.active .pill {
+    width: 32px; height: 4px;
+    border-radius:999px;
+    background: var(--surfaceVariant);
+    margin-bottom: 2px;
+    margin-top: -2px;
+  }
+  .navitem .label {
+    font-size:11px; font-weight:500; letter-spacing:0.01em;
+  }
+
+  /* Banner ad */
+  .banner {
+    position:absolute;
+    left:0; right:0;
+    bottom: 78px; /* above nav (14 gesture + 64 nav) */
+    height:50px;
+    background: var(--surface);
+    border-top: 1px solid var(--divider);
+    display:flex; align-items:center; padding: 0 12px;
+    gap:10px;
+    z-index:2;
+  }
+  .mode-dark .banner { border-top-color: var(--border); }
+  .banner .ad-tag {
+    position:absolute; top:4px; left:4px;
+    font-size:10px; font-weight:500; letter-spacing:0.04em;
+    color: var(--textTertiary);
+    text-transform: uppercase;
+    background: var(--surface);
+    padding: 1px 4px;
+    border-radius: 2px;
+  }
+  .banner .ad-thumb {
+    width:36px; height:36px;
+    border-radius:6px;
+    background: var(--surfaceVariant);
+    flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    color: var(--textTertiary);
+    font-family:'Geist Mono', monospace;
+    font-size:11px;
+  }
+  .banner .ad-text { flex:1; min-width:0; }
+  .banner .ad-h {
+    font-size:12px; font-weight:500; color: var(--textPrimary);
+    line-height:14px;
+    margin-bottom:2px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .banner .ad-b {
+    font-size:11px; color: var(--textSecondary);
+    line-height:14px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .banner .ad-cta {
+    font-size:11px; font-weight:500; color: var(--accent);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding: 5px 10px;
+    flex-shrink:0;
+  }
+
+  /* FAB */
+  .fab {
+    position:absolute;
+    right:16px;
+    bottom: 158px; /* above banner above nav */
+    width:56px; height:56px;
+    border-radius:28px;
+    background: var(--primary);
+    color: var(--onPrimary);
+    box-shadow: var(--shadow3);
+    display:flex; align-items:center; justify-content:center;
+    z-index:4;
+  }
+  .device.no-banner .fab { bottom: 96px; }
+
+  /* ============ CONTENT WRAPPERS ============ */
+  .content {
+    position: relative;
+    flex:1;
+  }
+  .scroll {
+    padding: 0 16px 16px;
+  }
+  .section-header {
+    font-family:'Geist','Inter',sans-serif;
+    font-size: 11px;
+    font-weight:500;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color: var(--textTertiary);
+    padding: 12px 0 8px;
+  }
+
+  /* === Mockup-specific styles === */
+
+  /* Onboarding */
+  .ob {
+    height: 100%;
+    display:flex; flex-direction:column;
+    padding: 0 24px 24px;
+    background: var(--bg);
+  }
+  .ob-skip {
+    align-self:flex-end;
+    padding: 12px 0;
+    font-size:14px; font-weight:500;
+    color: var(--textSecondary);
+  }
+  .ob-hero {
+    flex:1;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center;
+  }
+  .ob-glyph {
+    margin-bottom:48px;
+    color: var(--textPrimary);
+    position:relative;
+  }
+  .ob-glyph .accent-dot {
+    position:absolute;
+    width: 12px; height:12px; border-radius:50%;
+    background: var(--accent);
+    bottom: 36px; left: 50%; transform: translateX(-50%);
+  }
+  .ob-title {
+    font-size:30px; line-height:36px; font-weight:600;
+    letter-spacing:-0.02em;
+    color: var(--textPrimary);
+    margin: 0 0 16px;
+    text-wrap: pretty;
+  }
+  .ob-body {
+    font-size:15px; line-height:22px;
+    color: var(--textSecondary);
+    max-width: 280px;
+    margin:0;
+    text-wrap: pretty;
+  }
+  .ob-pager {
+    display:flex; justify-content:center; gap:8px;
+    margin-bottom: 24px;
+  }
+  .ob-dot {
+    width:6px; height:6px; border-radius:50%;
+    background: var(--divider);
+  }
+  .ob-dot.active { background: var(--primary); }
+
+  /* Empty state */
+  .empty {
+    flex:1;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding: 0 32px 64px;
+    text-align:center;
+  }
+  .empty .glyph { color: var(--textTertiary); margin-bottom: 24px; }
+  .empty h3 {
+    font-size:24px; line-height:30px; font-weight:600;
+    letter-spacing:-0.015em;
+    color: var(--textPrimary);
+    margin: 0 0 8px;
+  }
+  .empty p {
+    font-size:15px; line-height:22px;
+    color: var(--textSecondary);
+    margin: 0 0 24px;
+    max-width:260px;
+  }
+
+  /* Camera */
+  .cam {
+    position:absolute; inset:0;
+    background: #08080A;
+    color:#FFFFFF;
+    display:flex; flex-direction:column;
+  }
+  .cam .statusbar { color:#FFFFFF; }
+  .cam .appbar { background: transparent; color:#FFFFFF; }
+  .cam .iconbtn { color:#FFFFFF; }
+  .cam .viewfinder {
+    flex:1;
+    position:relative;
+    background:
+      radial-gradient(ellipse 120% 80% at 50% 30%, #1a1a1d 0%, #0a0a0c 60%);
+    overflow:hidden;
+  }
+  /* Document outline in viewfinder */
+  .doc-preview {
+    position:absolute;
+    left:14%; top:14%; right:14%; bottom:30%;
+    background: linear-gradient(180deg, #FAFAF8 0%, #F2F1ED 100%);
+    border-radius: 2px;
+    transform: perspective(800px) rotateX(2deg);
+    overflow:hidden;
+    padding: 18px 14px;
+  }
+  .doc-preview .ph { font-family:'Geist Mono',monospace; font-size:8px; letter-spacing:0.1em; text-transform:uppercase; color:#8B8A85; margin-bottom:10px;}
+  .doc-preview .l1 { height:1.5px; background:#26262A; opacity:0.7; border-radius:1px; margin-bottom:6px; width: 70%;}
+  .doc-preview .l2 { height:1.5px; background:#26262A; opacity:0.45; border-radius:1px; margin-bottom:5px;}
+  .doc-preview .l3 { height:1.5px; background:#26262A; opacity:0.45; border-radius:1px; margin-bottom:5px; width:90%;}
+  .doc-preview .l4 { height:1.5px; background:#26262A; opacity:0.45; border-radius:1px; margin-bottom:5px; width:80%;}
+  .doc-preview .l5 { height:1.5px; background:#26262A; opacity:0.45; border-radius:1px; margin-bottom:5px; width:65%;}
+  .doc-preview .stamp {
+    margin-top:12px; padding:6px 8px;
+    background: rgba(180,83,9,0.12);
+    border:1px solid rgba(180,83,9,0.4);
+    color:#B45309;
+    font-family:'Geist Mono',monospace;
+    font-size:8px; font-weight:500;
+    letter-spacing: 0.1em;
+    text-transform:uppercase;
+    display:inline-block;
+  }
+  /* Edge brackets */
+  .bracket {
+    position:absolute; width:24px; height:24px;
+    border-color: var(--accent);
+    border-style: solid;
+  }
+  .bracket.tl { top:13%; left:13%; border-width: 3px 0 0 3px; }
+  .bracket.tr { top:13%; right:13%; border-width: 3px 3px 0 0; }
+  .bracket.bl { bottom:29%; left:13%; border-width: 0 0 3px 3px; }
+  .bracket.br { bottom:29%; right:13%; border-width: 0 3px 3px 0; }
+  /* Polygon connecting brackets */
+  .polygon {
+    position:absolute;
+    inset:13% 13% 29% 13%;
+    border:1px solid var(--accent);
+    opacity:0.4;
+  }
+  .cam-pill {
+    position:absolute;
+    top:24px; left:50%; transform: translateX(-50%);
+    background: rgba(28,28,31,0.8);
+    color:#F4F4F1;
+    font-size:12px;
+    font-weight: 400;
+    padding: 6px 12px;
+    border-radius:999px;
+    backdrop-filter: blur(6px);
+    z-index:2;
+  }
+  .cam-controls {
+    height: 168px;
+    background: linear-gradient(180deg, transparent 0%, #08080A 30%);
+    padding: 16px 24px 24px;
+    display:flex; flex-direction:column; align-items:center; gap:16px;
+    position:relative;
+  }
+  .cam-modes {
+    background: rgba(28,28,31,0.7);
+    border-radius:8px;
+    padding:2px;
+    display:flex;
+    backdrop-filter: blur(6px);
+  }
+  .cam-mode {
+    height:32px; padding: 0 14px;
+    display:flex; align-items:center;
+    border-radius:6px;
+    color:#9A9A95;
+    font-size:13px; font-weight:500;
+    letter-spacing: 0.01em;
+  }
+  .cam-mode.active {
+    background: rgba(244,244,241,0.9);
+    color:#111111;
+  }
+  .cam-shutter-row {
+    display:grid; grid-template-columns: 1fr auto 1fr;
+    align-items:center;
+    width:100%;
+    gap: 24px;
+  }
+  .shutter {
+    width:72px; height:72px;
+    border-radius:50%;
+    border: 4px solid #FFFFFF;
+    background: transparent;
+    padding: 4px;
+    box-sizing: border-box;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .shutter::after {
+    content:'';
+    width: 100%; height:100%;
+    border-radius:50%;
+    background:#FFFFFF;
+  }
+  .cam-aux {
+    width:44px; height:44px;
+    border-radius:50%;
+    background: rgba(28,28,31,0.7);
+    color:#F4F4F1;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .cam-counter {
+    font-family:'Geist Mono', monospace;
+    font-size:13px;
+    color:#F4F4F1;
+    letter-spacing:0.04em;
+    background: rgba(28,28,31,0.7);
+    padding: 6px 10px;
+    border-radius:999px;
+  }
+
+  /* Multi-page review */
+  .mpr-preview {
+    margin: 0 24px 16px;
+    background: var(--surfaceSunken);
+    border-radius: 8px;
+    height: 360px;
+    position:relative;
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+  }
+  .mpr-preview .page-img {
+    width: 200px; height: 280px;
+    background: #FAFAF8;
+    border-radius: 4px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+    padding: 18px 14px;
+    color: #111;
+    text-align:left;
+    overflow:hidden;
+  }
+  .mpr-preview .page-num {
+    position:absolute; top:12px; left:12px;
+    background: var(--surface);
+    color: var(--textPrimary);
+    font-family:'Geist Mono', monospace;
+    font-size:11px; font-weight:500;
+    padding: 4px 8px;
+    border-radius:999px;
+    box-shadow: var(--shadow1);
+    border:1px solid var(--border);
+  }
+  .page-img .ph-h {
+    font-family:'Geist','Inter', sans-serif;
+    font-size:11px; font-weight:600; letter-spacing:-0.005em;
+    color:#111;
+    margin-bottom:8px;
+  }
+  .page-img .ph-meta {
+    font-family:'Geist Mono', monospace;
+    font-size:7px; letter-spacing: 0.06em; color:#5A5A5A;
+    text-transform:uppercase; margin-bottom:14px;
+  }
+  .page-img .pl { height:1.2px; background:#26262A; opacity:0.5; margin-bottom: 4px; border-radius:1px; }
+  .page-img .pl.s { width:55%; }
+  .page-img .pl.m { width:80%; }
+  .page-img .pl.l { width:95%; }
+
+  .mpr-strip {
+    padding: 0 16px;
+    display:flex; gap:12px;
+    overflow-x:auto;
+    margin-bottom: 16px;
+  }
+  .mpr-thumb {
+    width:72px; height:96px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    background: var(--surface);
+    flex-shrink:0;
+    position:relative;
+    padding: 8px 6px;
+    display:flex; flex-direction:column; gap:3px;
+  }
+  .mode-dark .mpr-thumb { background: var(--surface); border-color: var(--border); }
+  .mpr-thumb.active {
+    border:2px solid var(--primary);
+    padding: 7px 5px;
+  }
+  .mpr-thumb .badge {
+    position:absolute; top:-6px; right:-6px;
+    width: 18px; height:18px;
+    border-radius:50%;
+    background: var(--primary);
+    color: var(--onPrimary);
+    font-family:'Geist Mono', monospace;
+    font-size:10px; font-weight:500;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .mpr-thumb .tl-line { height:1.5px; background: var(--textTertiary); opacity:0.5; border-radius:1px; }
+  .mpr-thumb .tl-line.s { width:60%; }
+  .mpr-thumb .tl-line.head { background: var(--textPrimary); opacity:0.7; width:75%; height:2px; margin-bottom: 2px; }
+  .mpr-add {
+    width:72px; height:96px;
+    flex-shrink:0;
+    border-radius:8px;
+    border: 1.5px dashed var(--border);
+    background: transparent;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:4px;
+    color: var(--textSecondary);
+    font-size:11px; font-weight:500;
+  }
+  .mpr-actions {
+    padding: 12px 16px 14px;
+    display:grid;
+    grid-template-columns: 44px 44px 44px 1fr;
+    gap: 12px;
+    align-items:center;
+    border-top: 1px solid var(--divider);
+    background: var(--bg);
+  }
+  .mode-dark .mpr-actions { border-top-color: var(--border); }
+  .mpr-actions .iconbtn {
+    width: 44px; height:44px;
+    border-radius: 999px;
+    background: var(--surfaceVariant);
+  }
+  .mpr-actions .iconbtn.danger { color: var(--error); }
+
+  /* Document detail */
+  .dd-tabs {
+    height: 44px;
+    display:flex; align-items:center; gap:24px;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--divider);
+    background: var(--bg);
+  }
+  .dd-tab {
+    height: 44px;
+    display:flex; align-items:center;
+    font-size:14px; font-weight:500;
+    color: var(--textSecondary);
+    position:relative;
+    letter-spacing:0.005em;
+  }
+  .dd-tab.active { color: var(--textPrimary); }
+  .dd-tab.active::after {
+    content:'';
+    position:absolute; left:0; right:0; bottom:-1px;
+    height:2px;
+    background: var(--primary);
+  }
+  .dd-pages {
+    padding: 12px 16px;
+    overflow:hidden;
+  }
+  .dd-meta {
+    font-size:12px; color: var(--textTertiary);
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 12px;
+  }
+  .dd-page {
+    background: var(--surface);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding: 18px 18px;
+    margin-bottom: 12px;
+    color: var(--textPrimary);
+    box-shadow: var(--shadow1);
+  }
+  .mode-dark .dd-page {
+    background: #FAFAF8;
+    color: #111;
+    border-color: transparent;
+  }
+  .dd-page .h {
+    font-size:13px; font-weight:600; letter-spacing:-0.005em;
+    margin-bottom: 4px;
+  }
+  .dd-page .sub {
+    font-family:'Geist Mono', monospace;
+    font-size:9px; color:#5A5A5A; letter-spacing:0.06em; text-transform:uppercase;
+    margin-bottom:14px;
+  }
+  .mode-dark .dd-page .sub { color:#5A5A5A; }
+  .dd-page .pl {
+    height:1.4px; background:#26262A; opacity:0.5;
+    margin-bottom: 5px; border-radius:1px;
+  }
+  .dd-page .pl.l { width:100%; }
+  .dd-page .pl.m { width:80%; }
+  .dd-page .pl.s { width:60%; }
+  .dd-page .pl.xs { width:40%; }
+  .dd-page .gap { height: 8px; }
+  .dd-page table.kv {
+    width:100%; border-collapse: collapse; margin: 6px 0;
+  }
+  .dd-page table.kv td {
+    font-family:'Geist Mono', monospace;
+    font-size:9px; color:#1F1F1F;
+    padding: 2px 0;
+  }
+  .dd-page table.kv td.k { color:#5A5A5A; }
+  .dd-page table.kv td.v { text-align: right; font-weight:500; }
+
+  .dd-toolbar {
+    position:absolute;
+    left:0; right:0; bottom:14px;
+    height: 64px;
+    background: var(--surface);
+    border-top: 1px solid var(--divider);
+    display:grid; grid-template-columns: repeat(4, 1fr);
+    z-index:3;
+  }
+  .mode-dark .dd-toolbar { border-top-color: var(--border); }
+  .dd-toolitem {
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+    color: var(--textSecondary);
+    font-size:11px; font-weight:500;
+  }
+  .dd-toolitem.accent { color: var(--accent); }
+
+  /* AI Summary sheet */
+  .scrim {
+    position:absolute; inset:0;
+    background: var(--scrim);
+    z-index:6;
+  }
+  .sheet {
+    position:absolute;
+    left:0; right:0; bottom:0;
+    background: var(--surface);
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    box-shadow: var(--shadow4);
+    z-index:7;
+    padding: 8px 24px 32px;
+    max-height: 86%;
+    display:flex; flex-direction:column;
+  }
+  .sheet-handle {
+    width:32px; height:4px;
+    border-radius:999px;
+    background: var(--divider);
+    margin: 0 auto 16px;
+  }
+  .mode-dark .sheet-handle { background: var(--border); }
+  .sheet-header {
+    display:flex; align-items:center; gap:8px;
+    margin-bottom: 12px;
+  }
+  .sheet-header .title {
+    flex:1;
+    font-size:20px; font-weight:600; letter-spacing:-0.01em;
+    color: var(--textPrimary);
+  }
+  .sheet-header .accent { color: var(--accent); }
+  .privacy-pill {
+    display:inline-flex; align-items:center; gap:6px;
+    background: var(--surfaceVariant);
+    color: var(--textSecondary);
+    padding: 6px 10px;
+    border-radius:999px;
+    font-size:11px; font-weight:500; letter-spacing:0.01em;
+    align-self: flex-start;
+    margin-bottom: 20px;
+  }
+  .ov {
+    font-family:'Geist','Inter',sans-serif;
+    font-size:11px; font-weight:500; letter-spacing:0.08em;
+    text-transform: uppercase;
+    color: var(--textTertiary);
+    margin-bottom:8px;
+  }
+  .tldr {
+    font-size:16px; line-height:24px;
+    color: var(--textPrimary);
+    margin-bottom: 24px;
+    text-wrap: pretty;
+  }
+  .bullets { list-style:none; padding:0; margin: 0 0 24px; display:flex; flex-direction:column; gap:14px; }
+  .bullets li {
+    display:flex; gap:12px;
+    font-size:15px; line-height:22px;
+    color: var(--textPrimary);
+  }
+  .bullets li::before {
+    content:'';
+    width: 6px; height:6px; border-radius:50%;
+    background: var(--accent);
+    flex-shrink:0;
+    margin-top: 8px;
+  }
+  .sheet-footer {
+    display:flex; gap:12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--divider);
+  }
+  .mode-dark .sheet-footer { border-top-color: var(--border); }
+
+  /* Paywall */
+  .pw {
+    height:100%;
+    display:flex; flex-direction:column;
+    background: var(--bg);
+  }
+  .pw .body {
+    flex:1;
+    padding: 24px 24px 24px;
+    display:flex; flex-direction:column;
+    justify-content:center;
+  }
+  .pw-card {
+    background: var(--surface);
+    border-radius: 20px;
+    box-shadow: var(--shadow3);
+    border: 1px solid var(--border);
+    padding: 32px 24px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .mode-dark .pw-card { border-color: transparent; }
+  .pw-glyph {
+    color: var(--textPrimary);
+    margin-bottom: 24px;
+    display:inline-flex;
+  }
+  .pw-title {
+    font-size:38px; line-height:44px; font-weight:600;
+    letter-spacing:-0.02em;
+    color: var(--textPrimary);
+    margin: 0 0 8px;
+  }
+  .pw-price {
+    font-size:18px; line-height:24px;
+    color: var(--textSecondary);
+    margin: 0 0 32px;
+    font-variant-numeric: tabular-nums;
+  }
+  .pw-benefits {
+    list-style:none; padding:0; margin: 0 0 32px;
+    display:flex; flex-direction:column; gap:14px;
+    text-align:left;
+  }
+  .pw-benefits li {
+    display:flex; gap:12px; align-items:flex-start;
+    font-size:15px; line-height:22px;
+    color: var(--textPrimary);
+  }
+  .pw-benefits li svg { color: var(--success); flex-shrink:0; margin-top: 1px; }
+  .pw-foot {
+    text-align:center;
+    margin-top: 24px;
+    font-size:12px; line-height: 16px;
+    color: var(--textTertiary);
+  }
+
+  /* Native ad in feed */
+  .native-ad {
+    background: var(--surface);
+    border-radius:12px;
+    border:1px solid var(--border);
+    box-shadow: var(--shadow1);
+    padding: 14px 14px;
+    display:flex; gap:12px;
+    position:relative;
+  }
+  .mode-dark .native-ad { border-color: transparent; }
+  .native-ad .sponsored {
+    position:absolute; top:8px; right:10px;
+    font-family:'Geist','Inter',sans-serif;
+    font-size:10px; font-weight:500;
+    letter-spacing:0.04em;
+    color: var(--textTertiary);
+    text-transform:uppercase;
+  }
+  .native-ad .ad-img {
+    width:56px; height:56px;
+    border-radius:6px;
+    background:
+      linear-gradient(135deg, #C8B7E8 0%, #8FB7E0 100%);
+    flex-shrink:0;
+  }
+  .mode-dark .native-ad .ad-img {
+    background: linear-gradient(135deg, #4A3A6E 0%, #2C4F75 100%);
+  }
+  .native-ad .ad-h {
+    font-size:14px; line-height:18px; font-weight:500;
+    color: var(--textPrimary);
+    margin-top: 12px; margin-bottom: 2px;
+    padding-right: 60px;
+  }
+  .native-ad .ad-b {
+    font-size:12px; line-height:16px;
+    color: var(--textSecondary);
+    margin-bottom: 8px;
+  }
+  .native-ad .ad-cta {
+    align-self:flex-start;
+    font-size:12px; font-weight:500;
+    color: var(--textPrimary);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding: 6px 10px;
+  }
+
+  /* Onboarding mini illustration line */
+  .ob-illus {
+    width:200px; height: 200px;
+    color: var(--textPrimary);
+  }
+
+  /* Utility for inline icon spacing */
+  .lh-1 { line-height:1; }
+
+  /* App label heading */
+  .device-label {
+    font-family:'Geist Mono', 'Inter', monospace;
+    font-size:11px;
+    color:#5A5A5A;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    margin-bottom:4px;
+  }
+
+  /* Footer */
+  .footer {
+    max-width:1280px;
+    margin: 96px auto 0;
+    padding-top: 32px;
+    border-top: 1px solid #D2D1CC;
+    display:flex; justify-content:space-between;
+    font-family:'Geist Mono', monospace;
+    font-size:11px;
+    color:#5A5A5A;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* Back/Close icon spacing tweaks */
+  .iconbtn-sm {
+    width:36px; height:36px;
+    display:inline-flex; align-items:center; justify-content:center;
+  }
+
+  /* Search field (used in document detail variants if needed) */
+  .search-field {
+    height: 44px;
+    border-radius: 999px;
+    background: var(--surfaceVariant);
+    display:flex; align-items:center; gap:8px;
+    padding: 0 14px;
+    color: var(--textTertiary);
+    font-size:14px;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1 class="page-title">Snapdoc — Hero Mockups</h1>
+  <p class="page-sub">Eight hero screens, each rendered in light and dark mode side-by-side. All values are pulled from the design tokens defined in <code>02_design_system.md</code>. These are not Android code — they're a visual contract. Geist (Latin) and Geist Mono (numerals/monospace) load via Google Fonts; Inter is the metrics-equivalent fallback.</p>
+  <div class="legend">
+    <span class="l-light">Left column — Light mode</span>
+    <span class="l-dark">Right column — Dark mode</span>
+  </div>
+</div>
+
+<div class="grid">
+
+<!-- ===================== 1. ONBOARDING — PRIVACY ===================== -->
+<div class="section">
+  <h2>Onboarding 1 — Privacy</h2>
+  <span class="num">Screen 02</span>
+</div>
+
+<!-- LIGHT -->
+<div class="pair">
+  <span class="pair-label">Light · 360 × 800</span>
+  <div class="device tall mode-light">
+    <div class="statusbar">
+      <span>9:41</span>
+      <span class="right">
+        <!-- signal -->
+        <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><rect x="0" y="6" width="2" height="4" rx="0.5" fill="currentColor"/><rect x="4" y="4" width="2" height="6" rx="0.5" fill="currentColor"/><rect x="8" y="2" width="2" height="8" rx="0.5" fill="currentColor"/><rect x="12" y="0" width="2" height="10" rx="0.5" fill="currentColor"/></svg>
+        <!-- wifi -->
+        <svg width="14" height="10" viewBox="0 0 16 12" fill="none"><path d="M2 4.5c3.5-3 8.5-3 12 0M4.5 7c2-1.5 5-1.5 7 0M8 9.5l.01.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>
+        <!-- battery -->
+        <svg width="22" height="10" viewBox="0 0 22 10" fill="none"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+      </span>
+    </div>
+    <div class="ob">
+      <span class="ob-skip">Skip</span>
+      <div class="ob-hero">
+        <div class="ob-glyph">
+          <!-- Lucide lock 96 -->
+          <svg width="88" height="88" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          <span class="accent-dot"></span>
+        </div>
+        <h2 class="ob-title">Your scans stay on your phone.</h2>
+        <p class="ob-body">We don't have a server. Documents are saved locally — only the typed-out text is ever sent to AI when you ask for a summary.</p>
+      </div>
+      <div class="ob-pager">
+        <span class="ob-dot active"></span>
+        <span class="ob-dot"></span>
+        <span class="ob-dot"></span>
+      </div>
+      <button class="btn-primary">Continue</button>
+    </div>
+    <div class="gesturebar"></div>
+  </div>
+</div>
+
+<!-- DARK -->
+<div class="pair">
+  <span class="pair-label">Dark · 360 × 800</span>
+  <div class="device tall mode-dark">
+    <div class="statusbar">
+      <span>9:41</span>
+      <span class="right">
+        <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><rect x="0" y="6" width="2" height="4" rx="0.5" fill="currentColor"/><rect x="4" y="4" width="2" height="6" rx="0.5" fill="currentColor"/><rect x="8" y="2" width="2" height="8" rx="0.5" fill="currentColor"/><rect x="12" y="0" width="2" height="10" rx="0.5" fill="currentColor"/></svg>
+        <svg width="14" height="10" viewBox="0 0 16 12" fill="none"><path d="M2 4.5c3.5-3 8.5-3 12 0M4.5 7c2-1.5 5-1.5 7 0M8 9.5l.01.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>
+        <svg width="22" height="10" viewBox="0 0 22 10" fill="none"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+      </span>
+    </div>
+    <div class="ob">
+      <span class="ob-skip">Skip</span>
+      <div class="ob-hero">
+        <div class="ob-glyph">
+          <svg width="88" height="88" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          <span class="accent-dot"></span>
+        </div>
+        <h2 class="ob-title">Your scans stay on your phone.</h2>
+        <p class="ob-body">We don't have a server. Documents are saved locally — only the typed-out text is ever sent to AI when you ask for a summary.</p>
+      </div>
+      <div class="ob-pager">
+        <span class="ob-dot active"></span>
+        <span class="ob-dot"></span>
+        <span class="ob-dot"></span>
+      </div>
+      <button class="btn-primary">Continue</button>
+    </div>
+    <div class="gesturebar"></div>
+  </div>
+</div>
+
+<!-- ===================== 2. HOME — DOCUMENT LIST ===================== -->
+<div class="section">
+  <h2>Home — Document List</h2>
+  <span class="num">Screen 05</span>
+</div>
+
+<!-- Helper Snippet for status bar; we re-use full markup but slightly varied per screen -->
+<!-- LIGHT -->
+<div class="pair">
+  <span class="pair-label">Light · 360 × 800</span>
+  <div class="device tall mode-light">
+    <div class="statusbar">
+      <span>9:41</span>
+      <span class="right">
+        <svg width="14" height="10" viewBox="0 0 14 10"><rect x="0" y="6" width="2" height="4" rx="0.5" fill="currentColor"/><rect x="4" y="4" width="2" height="6" rx="0.5" fill="currentColor"/><rect x="8" y="2" width="2" height="8" rx="0.5" fill="currentColor"/><rect x="12" y="0" width="2" height="10" rx="0.5" fill="currentColor"/></svg>
+        <svg width="14" height="10" viewBox="0 0 16 12"><path d="M2 4.5c3.5-3 8.5-3 12 0M4.5 7c2-1.5 5-1.5 7 0M8 9.5l.01.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>
+        <svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+      </span>
+    </div>
+    <div class="appbar">
+      <span class="wordmark">snapdoc</span>
+      <div class="actions">
+        <span class="iconbtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+        </span>
+        <span class="iconbtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 11 2 2 4-4"/></svg>
+        </span>
+        <span class="iconbtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="m21 8-4-4-4 4"/><path d="M17 4v16"/></svg>
+        </span>
+      </div>
+    </div>
+    <div class="content scroll" style="padding-bottom: 158px;">
+      <div class="section-header">Today</div>
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <!-- Card 1 -->
+        <div class="doc-card">
+          <span class="strip" style="background:var(--catBills);"></span>
+          <div class="thumb">
+            <div class="ln head"></div>
+            <div class="ln"></div><div class="ln short"></div><div class="ln"></div>
+            <div class="ln shorter"></div>
+          </div>
+          <div class="body">
+            <div class="filename">Electricity Bill — March 2026</div>
+            <div class="meta">2 pages · 1.4 MB · 4:12 PM</div>
+            <span class="chip" style="color:var(--catBillsText);">
+              <span class="dot" style="background:var(--catBills);"></span>Bills
+            </span>
+          </div>
+        </div>
+        <!-- Card 2 -->
+        <div class="doc-card">
+          <span class="strip" style="background:var(--catIDs);"></span>
+          <div class="thumb">
+            <div class="ln head"></div>
+            <div class="ln short"></div><div class="ln"></div>
+            <div class="ln shorter"></div>
+          </div>
+          <div class="body">
+            <div class="filename">Aadhaar Card — Front + Back</div>
+            <div class="meta">2 pages · 2.1 MB · 11:04 AM</div>
+            <span class="chip" style="color:var(--catIDsText);">
+              <span class="dot" style="background:var(--catIDs);"></span>IDs
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="section-header">Earlier this week</div>
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <!-- Card 3 -->
+        <div class="doc-card">
+          <span class="strip" style="background:var(--catReceipts);"></span>
+          <div class="thumb">
+            <div class="ln head"></div>
+            <div class="ln"></div><div class="ln short"></div>
+          </div>
+          <div class="body">
+            <div class="filename">BigBasket — Grocery receipt</div>
+            <div class="meta">1 page · 0.8 MB · Tue, 7:48 PM</div>
+            <span class="chip" style="color:var(--catReceiptsText);">
+              <span class="dot" style="background:var(--catReceipts);"></span>Receipts
+            </span>
+          </div>
+        </div>
+        <!-- Card 4 -->
+        <div class="doc-card">
+          <span class="strip" style="background:var(--catContracts);"></span>
+          <div class="thumb">
+            <div class="ln head"></div>
+            <div class="ln"></div><div class="ln short"></div><div class="ln"></div>
+            <div class="ln shorter"></div>
+          </div>
+          <div class="body">
+            <div class="filename">Rent Agreement — Renewal 2026</div>
+            <div class="meta">12 pages · 4.6 MB · Mon, 2:31 PM</div>
+            <span class="chip" style="color:var(--catContractsText);">
+              <span class="dot" style="background:var(--catContracts);"></span>Contracts
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="banner">
+      <span class="ad-tag">Ad</span>
+      <div class="ad-thumb" style="background:linear-gradient(135deg,#FFD89B,#19547B);"></div>
+      <div class="ad-text">
+        <div class="ad-h">Save on cloud backup</div>
+        <div class="ad-b">3 months free with annual plan</div>
+      </div>
+      <span class="ad-cta">Open</span>
+    </div>
+    <div class="bottomnav">
+      <span class="navitem active">
+        <span class="pill"></span>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M9 13h6M9 17h4"/></svg>
+        <span class="label">Home</span>
+      </span>
+      <span class="navitem">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        <span class="label">Categories</span>
+      </span>
+      <span class="navitem">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span class="label">Settings</span>
+      </span>
+    </div>
+    <span class="fab">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg>
+    </span>
+    <div class="gesturebar"></div>
+  </div>
+</div>
+
+<!-- DARK -->
+<div class="pair">
+  <span class="pair-label">Dark · 360 × 800</span>
+  <div class="device tall mode-dark">
+    <div class="statusbar">
+      <span>9:41</span>
+      <span class="right">
+        <svg width="14" height="10" viewBox="0 0 14 10"><rect x="0" y="6" width="2" height="4" rx="0.5" fill="currentColor"/><rect x="4" y="4" width="2" height="6" rx="0.5" fill="currentColor"/><rect x="8" y="2" width="2" height="8" rx="0.5" fill="currentColor"/><rect x="12" y="0" width="2" height="10" rx="0.5" fill="currentColor"/></svg>
+        <svg width="14" height="10" viewBox="0 0 16 12"><path d="M2 4.5c3.5-3 8.5-3 12 0M4.5 7c2-1.5 5-1.5 7 0M8 9.5l.01.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>
+        <svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+      </span>
+    </div>
+    <div class="appbar">
+      <span class="wordmark">snapdoc</span>
+      <div class="actions">
+        <span class="iconbtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+        </span>
+        <span class="iconbtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 11 2 2 4-4"/></svg>
+        </span>
+        <span class="iconbtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="m21 8-4-4-4 4"/><path d="M17 4v16"/></svg>
+        </span>
+      </div>
+    </div>
+    <div class="content scroll" style="padding-bottom: 158px;">
+      <div class="section-header">Today</div>
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <div class="doc-card">
+          <span class="strip" style="background:var(--catBills);"></span>
+          <div class="thumb">
+            <div class="ln head"></div>
+            <div class="ln"></div><div class="ln short"></div><div class="ln"></div>
+            <div class="ln shorter"></div>
+          </div>
+          <div class="body">
+            <div class="filename">Electricity Bill — March 2026</div>
+            <div class="meta">2 pages · 1.4 MB · 4:12 PM</div>
+            <span class="chip" style="color:var(--catBillsText);">
+              <span class="dot" style="background:var(--catBills);"></span>Bills
+            </span>
+          </div>
+        </div>
+        <div class="doc-card">
+          <span class="strip" style="background:var(--catIDs);"></span>
+          <div class="thumb">
+            <div class="ln head"></div>
+            <div class="ln short"></div><div class="ln"></div>
+            <div class="ln shorter"></div>
+          </div>
+          <div class="body">
+            <div class="filename">Aadhaar Card — Front + Back</div>
+            <div class="meta">2 pages · 2.1 MB · 11:04 AM</div>
+            <span class="chip" style="color:var(--catIDsText);">
+              <span class="dot" style="background:var(--catIDs);"></span>IDs
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="section-header">Earlier this week</div>
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <div class="doc-card">
+          <span class="strip" style="background:var(--catReceipts);"></span>
+          <div class="thumb">
+            <div class="ln head"></div>
+            <div class="ln"></div><div class="ln short"></div>
+          </div>
+          <div class="body">
+            <div class="filename">BigBasket — Grocery receipt</div>
+            <div class="meta">1 page · 0.8 MB · Tue, 7:48 PM</div>
+            <span class="chip" style="color:var(--catReceiptsText);">
+              <span class="dot" style="background:var(--catReceipts);"></span>Receipts
+            </span>
+          </div>
+        </div>
+        <div class="doc-card">
+          <span class="strip" style="background:var(--catContracts);"></span>
+          <div class="thumb">
+            <div class="ln head"></div>
+            <div class="ln"></div><div class="ln short"></div><div class="ln"></div>
+            <div class="ln shorter"></div>
+          </div>
+          <div class="body">
+            <div class="filename">Rent Agreement — Renewal 2026</div>
+            <div class="meta">12 pages · 4.6 MB · Mon, 2:31 PM</div>
+            <span class="chip" style="color:var(--catContractsText);">
+              <span class="dot" style="background:var(--catContracts);"></span>Contracts
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="banner">
+      <span class="ad-tag">Ad</span>
+      <div class="ad-thumb" style="background:linear-gradient(135deg,#3a2e4d,#0f3057);"></div>
+      <div class="ad-text">
+        <div class="ad-h">Save on cloud backup</div>
+        <div class="ad-b">3 months free with annual plan</div>
+      </div>
+      <span class="ad-cta">Open</span>
+    </div>
+    <div class="bottomnav">
+      <span class="navitem active">
+        <span class="pill"></span>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M9 13h6M9 17h4"/></svg>
+        <span class="label">Home</span>
+      </span>
+      <span class="navitem">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        <span class="label">Categories</span>
+      </span>
+      <span class="navitem">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span class="label">Settings</span>
+      </span>
+    </div>
+    <span class="fab">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg>
+    </span>
+    <div class="gesturebar"></div>
+  </div>
+</div>
+
+<!-- ===================== 3. HOME — EMPTY STATE ===================== -->
+<div class="section">
+  <h2>Home — Empty State</h2>
+  <span class="num">Screen 06</span>
+</div>
+
+<div class="pair">
+  <span class="pair-label">Light · 360 × 800</span>
+  <div class="device tall mode-light no-banner">
+    <div class="statusbar">
+      <span>9:41</span>
+      <span class="right">
+        <svg width="14" height="10" viewBox="0 0 14 10"><rect x="0" y="6" width="2" height="4" rx="0.5" fill="currentColor"/><rect x="4" y="4" width="2" height="6" rx="0.5" fill="currentColor"/><rect x="8" y="2" width="2" height="8" rx="0.5" fill="currentColor"/><rect x="12" y="0" width="2" height="10" rx="0.5" fill="currentColor"/></svg>
+        <svg width="14" height="10" viewBox="0 0 16 12"><path d="M2 4.5c3.5-3 8.5-3 12 0M4.5 7c2-1.5 5-1.5 7 0M8 9.5l.01.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>
+        <svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+      </span>
+    </div>
+    <div class="appbar">
+      <span class="wordmark">snapdoc</span>
+      <div class="actions">
+        <span class="iconbtn muted" style="opacity:.45;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+        </span>
+      </div>
+    </div>
+    <div class="empty">
+      <span class="glyph">
+        <svg width="84" height="84" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9"/>
+          <path d="M14 3v6h6"/>
+          <path d="M19 3v6"/><path d="M16 6h6"/>
+        </svg>
+      </span>
+      <h3>Scan your first document.</h3>
+      <p>Tap the camera to capture anything — a bill, an ID, a receipt. Snapdoc reads what's inside and saves it on your phone.</p>
+      <button class="btn-primary" style="max-width:240px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg>
+        Scan now
+      </button>
+    </div>
+    <div class="bottomnav">
+      <span class="navitem active">
+        <span class="pill"></span>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M9 13h6M9 17h4"/></svg>
+        <span class="label">Home</span>
+      </span>
+      <span class="navitem">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        <span class="label">Categories</span>
+      </span>
+      <span class="navitem">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span class="label">Settings</span>
+      </span>
+    </div>
+    <span class="fab">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg>
+    </span>
+    <div class="gesturebar"></div>
+  </div>
+</div>
+
+<div class="pair">
+  <span class="pair-label">Dark · 360 × 800</span>
+  <div class="device tall mode-dark no-banner">
+    <div class="statusbar">
+      <span>9:41</span>
+      <span class="right">
+        <svg width="14" height="10" viewBox="0 0 14 10"><rect x="0" y="6" width="2" height="4" rx="0.5" fill="currentColor"/><rect x="4" y="4" width="2" height="6" rx="0.5" fill="currentColor"/><rect x="8" y="2" width="2" height="8" rx="0.5" fill="currentColor"/><rect x="12" y="0" width="2" height="10" rx="0.5" fill="currentColor"/></svg>
+        <svg width="14" height="10" viewBox="0 0 16 12"><path d="M2 4.5c3.5-3 8.5-3 12 0M4.5 7c2-1.5 5-1.5 7 0M8 9.5l.01.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>
+        <svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+      </span>
+    </div>
+    <div class="appbar">
+      <span class="wordmark">snapdoc</span>
+      <div class="actions">
+        <span class="iconbtn muted" style="opacity:.35;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+        </span>
+      </div>
+    </div>
+    <div class="empty">
+      <span class="glyph">
+        <svg width="84" height="84" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9"/>
+          <path d="M14 3v6h6"/>
+          <path d="M19 3v6"/><path d="M16 6h6"/>
+        </svg>
+      </span>
+      <h3>Scan your first document.</h3>
+      <p>Tap the camera to capture anything — a bill, an ID, a receipt. Snapdoc reads what's inside and saves it on your phone.</p>
+      <button class="btn-primary" style="max-width:240px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg>
+        Scan now
+      </button>
+    </div>
+    <div class="bottomnav">
+      <span class="navitem active">
+        <span class="pill"></span>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M9 13h6M9 17h4"/></svg>
+        <span class="label">Home</span>
+      </span>
+      <span class="navitem">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        <span class="label">Categories</span>
+      </span>
+      <span class="navitem">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span class="label">Settings</span>
+      </span>
+    </div>
+    <span class="fab">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg>
+    </span>
+    <div class="gesturebar"></div>
+  </div>
+</div>
+
+<!-- ===================== 4. CAMERA / SCANNER ===================== -->
+<div class="section">
+  <h2>Camera / Scanner Capture</h2>
+  <span class="num">Screen 09</span>
+</div>
+
+<div class="pair">
+  <span class="pair-label">Light · 360 × 800</span>
+  <div class="device tall mode-light">
+    <div class="cam">
+      <div class="statusbar" style="color:#fff;">
+        <span>9:41</span>
+        <span class="right">
+          <svg width="14" height="10" viewBox="0 0 14 10"><rect x="0" y="6" width="2" height="4" rx="0.5" fill="currentColor"/><rect x="4" y="4" width="2" height="6" rx="0.5" fill="currentColor"/><rect x="8" y="2" width="2" height="8" rx="0.5" fill="currentColor"/><rect x="12" y="0" width="2" height="10" rx="0.5" fill="currentColor"/></svg>
+          <svg width="14" height="10" viewBox="0 0 16 12"><path d="M2 4.5c3.5-3 8.5-3 12 0M4.5 7c2-1.5 5-1.5 7 0M8 9.5l.01.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>
+          <svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+        </span>
+      </div>
+      <div class="appbar" style="background:transparent;">
+        <span class="iconbtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </span>
+        <span style="flex:1;"></span>
+        <span class="iconbtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/></svg>
+        </span>
+        <span class="iconbtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+        </span>
+      </div>
+      <div class="viewfinder">
+        <div class="cam-pill">Position document inside the frame</div>
+        <div class="doc-preview">
+          <div class="ph">Electricity Bill — March 2026</div>
+          <div class="l1"></div><div class="l2"></div><div class="l3"></div><div class="l4"></div><div class="l5"></div>
+          <div class="stamp">Total ₹2,481.00 due 04 Apr 26</div>
+        </div>
+        <span class="polygon"></span>
+        <span class="bracket tl"></span>
+        <span class="bracket tr"></span>
+        <span class="bracket bl"></span>
+        <span class="bracket br"></span>
+      </div>
+      <div class="cam-controls">
+        <div class="cam-modes">
+          <span class="cam-mode active">Single</span>
+          <span class="cam-mode">Multi</span>
+          <span class="cam-mode">ID-card</span>
+        </div>
+        <div class="cam-shutter-row">
+          <span class="cam-counter">3 pages</span>
+          <span class="shutter"></span>
+          <span class="cam-aux" style="justify-self:end;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="gesturebar invert"></div>
+  </div>
+</div>
+
+<div class="pair">
+  <span class="pair-label">Dark · 360 × 800</span>
+  <div class="device tall mode-dark">
+    <div class="cam">
+      <div class="statusbar" style="color:#fff;">
+        <span>9:41</span>
+        <span class="right">
+          <svg width="14" height="10" viewBox="0 0 14 10"><rect x="0" y="6" width="2" height="4" rx="0.5" fill="currentColor"/><rect x="4" y="4" width="2" height="6" rx="0.5" fill="currentColor"/><rect x="8" y="2" width="2" height="8" rx="0.5" fill="currentColor"/><rect x="12" y="0" width="2" height="10" rx="0.5" fill="currentColor"/></svg>
+          <svg width="14" height="10" viewBox="0 0 16 12"><path d="M2 4.5c3.5-3 8.5-3 12 0M4.5 7c2-1.5 5-1.5 7 0M8 9.5l.01.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>
+          <svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+        </span>
+      </div>
+      <div class="appbar" style="background:transparent;">
+        <span class="iconbtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </span>
+        <span style="flex:1;"></span>
+        <span class="iconbtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/></svg>
+        </span>
+        <span class="iconbtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+        </span>
+      </div>
+      <div class="viewfinder">
+        <div class="cam-pill">Position document inside the frame</div>
+        <div class="doc-preview">
+          <div class="ph">Electricity Bill — March 2026</div>
+          <div class="l1"></div><div class="l2"></div><div class="l3"></div><div class="l4"></div><div class="l5"></div>
+          <div class="stamp">Total ₹2,481.00 due 04 Apr 26</div>
+        </div>
+        <span class="polygon"></span>
+        <span class="bracket tl"></span>
+        <span class="bracket tr"></span>
+        <span class="bracket bl"></span>
+        <span class="bracket br"></span>
+      </div>
+      <div class="cam-controls">
+        <div class="cam-modes">
+          <span class="cam-mode active">Single</span>
+          <span class="cam-mode">Multi</span>
+          <span class="cam-mode">ID-card</span>
+        </div>
+        <div class="cam-shutter-row">
+          <span class="cam-counter">3 pages</span>
+          <span class="shutter"></span>
+          <span class="cam-aux" style="justify-self:end;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="gesturebar invert"></div>
+  </div>
+</div>
+
+<!-- ===================== 5. MULTI-PAGE REVIEW ===================== -->
+<div class="section">
+  <h2>Multi-Page Review</h2>
+  <span class="num">Screen 11</span>
+</div>
+
+<div class="pair">
+  <span class="pair-label">Light · 360 × 800</span>
+  <div class="device tall mode-light">
+    <div class="statusbar">
+      <span>9:41</span>
+      <span class="right">
+        <svg width="14" height="10" viewBox="0 0 14 10"><rect x="0" y="6" width="2" height="4" rx="0.5" fill="currentColor"/><rect x="4" y="4" width="2" height="6" rx="0.5" fill="currentColor"/><rect x="8" y="2" width="2" height="8" rx="0.5" fill="currentColor"/><rect x="12" y="0" width="2" height="10" rx="0.5" fill="currentColor"/></svg>
+        <svg width="14" height="10" viewBox="0 0 16 12"><path d="M2 4.5c3.5-3 8.5-3 12 0M4.5 7c2-1.5 5-1.5 7 0M8 9.5l.01.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>
+        <svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+      </span>
+    </div>
+    <div class="appbar">
+      <span class="iconbtn">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </span>
+      <span class="title" style="font-variant-numeric: tabular-nums;">5 pages</span>
+      <div class="actions">
+        <span class="iconbtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m3 16 4 4 4-4M7 20V4M21 8l-4-4-4 4M17 4v16"/></svg>
+        </span>
+        <span class="iconbtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+        </span>
+      </div>
+    </div>
+    <div class="mpr-preview">
+      <div class="page-num">Page 3 / 5</div>
+      <div class="page-img">
+        <div class="ph-h">Rent Agreement — Renewal 2026</div>
+        <div class="ph-meta">Clause 3 — payment terms</div>
+        <div class="pl m"></div><div class="pl l"></div>
+        <div class="pl s"></div>
+        <div class="pl l"></div><div class="pl m"></div>
+        <div class="pl l"></div><div class="pl s"></div>
+        <div class="pl l"></div><div class="pl m"></div>
+        <div class="pl s"></div>
+        <div class="pl l"></div>
+        <div class="pl m"></div>
+      </div>
+    </div>
+    <div class="mpr-strip">
+      <div class="mpr-thumb">
+        <span class="badge">1</span>
+        <div class="tl-line head"></div>
+        <div class="tl-line"></div>
+        <div class="tl-line s"></div>
+        <div class="tl-line"></div>
+      </div>
+      <div class="mpr-thumb">
+        <span class="badge">2</span>
+        <div class="tl-line head"></div>
+        <div class="tl-line"></div>
+        <div class="tl-line s"></div>
+      </div>
+      <div class="mpr-thumb active">
+        <span class="badge">3</span>
+        <div class="tl-line head"></div>
+        <div class="tl-line"></div>
+        <div class="tl-line"></div>
+        <div class="tl-line s"></div>
+      </div>
+      <div class="mpr-thumb">
+        <span class="badge">4</span>
+        <div class="tl-line head"></div>
+        <div class="tl-line"></div>
+        <div class="tl-line s"></div>
+      </div>
+      <div class="mpr-thumb">
+        <span class="badge">5</span>
+        <div class="tl-line head"></div>
+        <div class="tl-line"></div>
+        <div class="tl-line s"></div>
+        <div class="tl-line"></div>
+      </div>
+      <div class="mpr-add">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        Add page
+      </div>
+    </div>
+    <div class="mpr-actions">
+      <span class="iconbtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9c-2.6 0-5 1-6.7 2.7L3 8"/><path d="M3 3v5h5"/></svg>
+      </span>
+      <span class="iconbtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="13" y2="6"/><line x1="17" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="9" y2="12"/><line x1="13" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="15" y2="18"/><line x1="19" y1="18" x2="20" y2="18"/><circle cx="15" cy="6" r="2"/><circle cx="11" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg>
+      </span>
+      <span class="iconbtn danger">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+      </span>
+      <button class="btn-primary">Continue</button>
+    </div>
+    <div class="gesturebar"></div>
+  </div>
+</div>
+
+<div class="pair">
+  <span class="pair-label">Dark · 360 × 800</span>
+  <div class="device tall mode-dark">
+    <div class="statusbar">
+      <span>9:41</span>
+      <span class="right">
+        <svg width="14" height="10" viewBox="0 0 14 10"><rect x="0" y="6" width="2" height="4" rx="0.5" fill="currentColor"/><rect x="4" y="4" width="2" height="6" rx="0.5" fill="currentColor"/><rect x="8" y="2" width="2" height="8" rx="0.5" fill="currentColor"/><rect x="12" y="0" width="2" height="10" rx="0.5" fill="currentColor"/></svg>
+        <svg width="14" height="10" viewBox="0 0 16 12"><path d="M2 4.5c3.5-3 8.5-3 12 0M4.5 7c2-1.5 5-1.5 7 0M8 9.5l.01.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>
+        <svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+      </span>
+    </div>
+    <div class="appbar">
+      <span class="iconbtn">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </span>
+      <span class="title" style="font-variant-numeric: tabular-nums;">5 pages</span>
+      <div class="actions">
+        <span class="iconbtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m3 16 4 4 4-4M7 20V4M21 8l-4-4-4 4M17 4v16"/></svg>
+        </span>
+        <span class="iconbtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+        </span>
+      </div>
+    </div>
+    <div class="mpr-preview">
+      <div class="page-num">Page 3 / 5</div>
+      <div class="page-img">
+        <div class="ph-h">Rent Agreement — Renewal 2026</div>
+        <div class="ph-meta">Clause 3 — payment terms</div>
+        <div class="pl m"></div><div class="pl l"></div>
+        <div class="pl s"></div>
+        <div class="pl l"></div><div class="pl m"></div>
+        <div class="pl l"></div><div class="pl s"></div>
+        <div class="pl l"></div><div class="pl m"></div>
+        <div class="pl s"></div>
+        <div class="pl l"></div>
+        <div class="pl m"></div>
+      </div>
+    </div>
+    <div class="mpr-strip">
+      <div class="mpr-thumb">
+        <span class="badge">1</span>
+        <div class="tl-line head"></div><div class="tl-line"></div><div class="tl-line s"></div><div class="tl-line"></div>
+      </div>
+      <div class="mpr-thumb">
+        <span class="badge">2</span>
+        <div class="tl-line head"></div><div class="tl-line"></div><div class="tl-line s"></div>
+      </div>
+      <div class="mpr-thumb active">
+        <span class="badge">3</span>
+        <div class="tl-line head"></div><div class="tl-line"></div><div class="tl-line"></div><div class="tl-line s"></div>
+      </div>
+      <div class="mpr-thumb">
+        <span class="badge">4</span>
+        <div class="tl-line head"></div><div class="tl-line"></div><div class="tl-line s"></div>
+      </div>
+      <div class="mpr-thumb">
+        <span class="badge">5</span>
+        <div class="tl-line head"></div><div class="tl-line"></div><div class="tl-line s"></div><div class="tl-line"></div>
+      </div>
+      <div class="mpr-add">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        Add page
+      </div>
+    </div>
+    <div class="mpr-actions">
+      <span class="iconbtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9c-2.6 0-5 1-6.7 2.7L3 8"/><path d="M3 3v5h5"/></svg>
+      </span>
+      <span class="iconbtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="13" y2="6"/><line x1="17" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="9" y2="12"/><line x1="13" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="15" y2="18"/><line x1="19" y1="18" x2="20" y2="18"/><circle cx="15" cy="6" r="2"/><circle cx="11" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg>
+      </span>
+      <span class="iconbtn danger">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+      </span>
+      <button class="btn-primary">Continue</button>
+    </div>
+    <div class="gesturebar"></div>
+  </div>
+</div>
+
+<!-- ===================== 6. DOCUMENT DETAIL ===================== -->
+<div class="section">
+  <h2>Document Detail</h2>
+  <span class="num">Screen 14</span>
+</div>
+
+<div class="pair">
+  <span class="pair-label">Light · 360 × 800</span>
+  <div class="device tall mode-light">
+    <div class="statusbar">
+      <span>9:41</span>
+      <span class="right">
+        <svg width="14" height="10" viewBox="0 0 14 10"><rect x="0" y="6" width="2" height="4" rx="0.5" fill="currentColor"/><rect x="4" y="4" width="2" height="6" rx="0.5" fill="currentColor"/><rect x="8" y="2" width="2" height="8" rx="0.5" fill="currentColor"/><rect x="12" y="0" width="2" height="10" rx="0.5" fill="currentColor"/></svg>
+        <svg width="14" height="10" viewBox="0 0 16 12"><path d="M2 4.5c3.5-3 8.5-3 12 0M4.5 7c2-1.5 5-1.5 7 0M8 9.5l.01.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>
+        <svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+      </span>
+    </div>
+    <div class="appbar">
+      <span class="iconbtn">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </span>
+      <span class="title" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Electricity Bill — March 2026</span>
+      <div class="actions">
+        <span class="iconbtn" style="color:var(--accent);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="m12 17.27 5.18 3.05L15.82 14 21 9.74l-6.91-.59L12 3 9.91 9.15 3 9.74 8.18 14l-1.36 6.32z"/></svg>
+        </span>
+        <span class="iconbtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+        </span>
+      </div>
+    </div>
+    <div class="dd-tabs">
+      <span class="dd-tab active">Pages</span>
+      <span class="dd-tab">Text</span>
+      <span class="dd-tab">Summary</span>
+    </div>
+    <div class="dd-pages">
+      <div class="dd-meta">2 pages · 1.4 MB · Tabular  ·  Today, 4:12 PM</div>
+      <div class="dd-page">
+        <div class="h">BESCOM — Electricity Bill</div>
+        <div class="sub">Account 0042-7715-9 · Mar 2026</div>
+        <table class="kv">
+          <tr><td class="k">Previous reading</td><td class="v">2,840 kWh</td></tr>
+          <tr><td class="k">Current reading</td><td class="v">3,178 kWh</td></tr>
+          <tr><td class="k">Units consumed</td><td class="v">338 kWh</td></tr>
+          <tr><td class="k">Energy charges</td><td class="v">₹2,184.50</td></tr>
+          <tr><td class="k">Fixed charges</td><td class="v">₹165.00</td></tr>
+          <tr><td class="k">Tax</td><td class="v">₹131.50</td></tr>
+          <tr><td class="k" style="padding-top:8px; font-weight:500; color:#111;">Total payable</td><td class="v" style="padding-top:8px; color:#111;">₹2,481.00</td></tr>
+        </table>
+        <div class="gap"></div>
+        <div class="pl m"></div>
+        <div class="pl s"></div>
+      </div>
+      <div class="dd-page" style="opacity:0.4;">
+        <div class="h">Page 2 — Terms</div>
+        <div class="sub">Tariff details</div>
+        <div class="pl l"></div><div class="pl m"></div><div class="pl l"></div>
+      </div>
+    </div>
+    <div class="dd-toolbar">
+      <span class="dd-toolitem">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        Share
+      </span>
+      <span class="dd-toolitem">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        Export
+      </span>
+      <span class="dd-toolitem accent">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8L4 10.5 8.5 14l-.5 6 4-3 4 3-.5-6 4.5-3.5-6.1-1.7L12 3Z"/><path d="m18 4 .8 2.2L21 7l-2.2.8L18 10l-.8-2.2L15 7l2.2-.8L18 4Z" /></svg>
+        Summarize
+      </span>
+      <span class="dd-toolitem">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        Delete
+      </span>
+    </div>
+    <div class="gesturebar"></div>
+  </div>
+</div>
+
+<div class="pair">
+  <span class="pair-label">Dark · 360 × 800</span>
+  <div class="device tall mode-dark">
+    <div class="statusbar">
+      <span>9:41</span>
+      <span class="right">
+        <svg width="14" height="10" viewBox="0 0 14 10"><rect x="0" y="6" width="2" height="4" rx="0.5" fill="currentColor"/><rect x="4" y="4" width="2" height="6" rx="0.5" fill="currentColor"/><rect x="8" y="2" width="2" height="8" rx="0.5" fill="currentColor"/><rect x="12" y="0" width="2" height="10" rx="0.5" fill="currentColor"/></svg>
+        <svg width="14" height="10" viewBox="0 0 16 12"><path d="M2 4.5c3.5-3 8.5-3 12 0M4.5 7c2-1.5 5-1.5 7 0M8 9.5l.01.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>
+        <svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+      </span>
+    </div>
+    <div class="appbar">
+      <span class="iconbtn">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </span>
+      <span class="title" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Electricity Bill — March 2026</span>
+      <div class="actions">
+        <span class="iconbtn" style="color:var(--accent);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="m12 17.27 5.18 3.05L15.82 14 21 9.74l-6.91-.59L12 3 9.91 9.15 3 9.74 8.18 14l-1.36 6.32z"/></svg>
+        </span>
+        <span class="iconbtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+        </span>
+      </div>
+    </div>
+    <div class="dd-tabs">
+      <span class="dd-tab active">Pages</span>
+      <span class="dd-tab">Text</span>
+      <span class="dd-tab">Summary</span>
+    </div>
+    <div class="dd-pages">
+      <div class="dd-meta">2 pages · 1.4 MB · Tabular  ·  Today, 4:12 PM</div>
+      <div class="dd-page">
+        <div class="h">BESCOM — Electricity Bill</div>
+        <div class="sub">Account 0042-7715-9 · Mar 2026</div>
+        <table class="kv">
+          <tr><td class="k">Previous reading</td><td class="v">2,840 kWh</td></tr>
+          <tr><td class="k">Current reading</td><td class="v">3,178 kWh</td></tr>
+          <tr><td class="k">Units consumed</td><td class="v">338 kWh</td></tr>
+          <tr><td class="k">Energy charges</td><td class="v">₹2,184.50</td></tr>
+          <tr><td class="k">Fixed charges</td><td class="v">₹165.00</td></tr>
+          <tr><td class="k">Tax</td><td class="v">₹131.50</td></tr>
+          <tr><td class="k" style="padding-top:8px; font-weight:500; color:#111;">Total payable</td><td class="v" style="padding-top:8px; color:#111;">₹2,481.00</td></tr>
+        </table>
+        <div class="gap"></div>
+        <div class="pl m"></div>
+        <div class="pl s"></div>
+      </div>
+      <div class="dd-page" style="opacity:0.4;">
+        <div class="h">Page 2 — Terms</div>
+        <div class="sub">Tariff details</div>
+        <div class="pl l"></div><div class="pl m"></div><div class="pl l"></div>
+      </div>
+    </div>
+    <div class="dd-toolbar">
+      <span class="dd-toolitem">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        Share
+      </span>
+      <span class="dd-toolitem">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        Export
+      </span>
+      <span class="dd-toolitem accent">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8L4 10.5 8.5 14l-.5 6 4-3 4 3-.5-6 4.5-3.5-6.1-1.7L12 3Z"/><path d="m18 4 .8 2.2L21 7l-2.2.8L18 10l-.8-2.2L15 7l2.2-.8L18 4Z" /></svg>
+        Summarize
+      </span>
+      <span class="dd-toolitem">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        Delete
+      </span>
+    </div>
+    <div class="gesturebar"></div>
+  </div>
+</div>
+
+<!-- ===================== 7. AI SUMMARY BOTTOM SHEET ===================== -->
+<div class="section">
+  <h2>AI Summary — Bottom Sheet</h2>
+  <span class="num">Screen 15</span>
+</div>
+
+<div class="pair">
+  <span class="pair-label">Light · 360 × 800</span>
+  <div class="device tall mode-light">
+    <!-- Background — mimics document detail behind the scrim -->
+    <div class="statusbar">
+      <span>9:41</span>
+      <span class="right">
+        <svg width="14" height="10" viewBox="0 0 14 10"><rect x="0" y="6" width="2" height="4" rx="0.5" fill="currentColor"/><rect x="4" y="4" width="2" height="6" rx="0.5" fill="currentColor"/><rect x="8" y="2" width="2" height="8" rx="0.5" fill="currentColor"/><rect x="12" y="0" width="2" height="10" rx="0.5" fill="currentColor"/></svg>
+        <svg width="14" height="10" viewBox="0 0 16 12"><path d="M2 4.5c3.5-3 8.5-3 12 0M4.5 7c2-1.5 5-1.5 7 0M8 9.5l.01.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>
+        <svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+      </span>
+    </div>
+    <div class="appbar">
+      <span class="iconbtn">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </span>
+      <span class="title" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Rent Agreement — Renewal 2026</span>
+    </div>
+    <div class="dd-pages" style="padding-top:24px; height:200px; overflow:hidden;">
+      <div class="dd-page">
+        <div class="h">RENTAL AGREEMENT</div>
+        <div class="pl l"></div><div class="pl m"></div><div class="pl l"></div><div class="pl s"></div>
+      </div>
+    </div>
+    <div class="scrim"></div>
+    <div class="sheet" style="bottom:14px; padding-bottom: 28px;">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <svg class="accent" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8L4 10.5 8.5 14l-.5 6 4-3 4 3-.5-6 4.5-3.5-6.1-1.7L12 3Z"/></svg>
+        <span class="title">AI Summary</span>
+        <button class="btn-ghost accent">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9c-2.6 0-5 1-6.7 2.7L3 8"/><path d="M3 3v5h5"/></svg>
+          Regenerate
+        </button>
+      </div>
+      <span class="privacy-pill">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Generated from your document text. Not stored on a server.
+      </span>
+      <div class="ov">TL;DR</div>
+      <p class="tldr">An 11-month residential lease in Indiranagar, Bengaluru, ₹38,000/month from 1 Apr 2026, with a 10% annual escalation and a two-month security deposit.</p>
+      <div class="ov">Key points</div>
+      <ul class="bullets">
+        <li>Tenant: Aarav Mehra. Owner: Mrs. Lakshmi Iyer. Property: 2BHK, 7th main, Indiranagar.</li>
+        <li>Rent ₹38,000/month, due on the 5th. Late fee ₹500/day after the 10th.</li>
+        <li>Security deposit ₹76,000 — refundable, no interest, returnable within 30 days of vacating.</li>
+        <li>Notice period 60 days, either side. Escalation +10% on renewal.</li>
+        <li>Tenant pays electricity, water, internet; owner pays maintenance.</li>
+      </ul>
+      <div class="sheet-footer">
+        <button class="btn-ghost" style="border:1px solid var(--border); border-radius:8px; padding:0 16px; flex:1;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy
+        </button>
+        <button class="btn-ghost" style="border:1px solid var(--border); border-radius:8px; padding:0 16px; flex:1;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Share summary
+        </button>
+      </div>
+    </div>
+    <div class="gesturebar"></div>
+  </div>
+</div>
+
+<div class="pair">
+  <span class="pair-label">Dark · 360 × 800</span>
+  <div class="device tall mode-dark">
+    <div class="statusbar">
+      <span>9:41</span>
+      <span class="right">
+        <svg width="14" height="10" viewBox="0 0 14 10"><rect x="0" y="6" width="2" height="4" rx="0.5" fill="currentColor"/><rect x="4" y="4" width="2" height="6" rx="0.5" fill="currentColor"/><rect x="8" y="2" width="2" height="8" rx="0.5" fill="currentColor"/><rect x="12" y="0" width="2" height="10" rx="0.5" fill="currentColor"/></svg>
+        <svg width="14" height="10" viewBox="0 0 16 12"><path d="M2 4.5c3.5-3 8.5-3 12 0M4.5 7c2-1.5 5-1.5 7 0M8 9.5l.01.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>
+        <svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+      </span>
+    </div>
+    <div class="appbar">
+      <span class="iconbtn">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </span>
+      <span class="title" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Rent Agreement — Renewal 2026</span>
+    </div>
+    <div class="dd-pages" style="padding-top:24px; height:200px; overflow:hidden;">
+      <div class="dd-page">
+        <div class="h">RENTAL AGREEMENT</div>
+        <div class="pl l"></div><div class="pl m"></div><div class="pl l"></div><div class="pl s"></div>
+      </div>
+    </div>
+    <div class="scrim"></div>
+    <div class="sheet" style="bottom:14px; padding-bottom: 28px;">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <svg class="accent" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8L4 10.5 8.5 14l-.5 6 4-3 4 3-.5-6 4.5-3.5-6.1-1.7L12 3Z"/></svg>
+        <span class="title">AI Summary</span>
+        <button class="btn-ghost accent">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9c-2.6 0-5 1-6.7 2.7L3 8"/><path d="M3 3v5h5"/></svg>
+          Regenerate
+        </button>
+      </div>
+      <span class="privacy-pill">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Generated from your document text. Not stored on a server.
+      </span>
+      <div class="ov">TL;DR</div>
+      <p class="tldr">An 11-month residential lease in Indiranagar, Bengaluru, ₹38,000/month from 1 Apr 2026, with a 10% annual escalation and a two-month security deposit.</p>
+      <div class="ov">Key points</div>
+      <ul class="bullets">
+        <li>Tenant: Aarav Mehra. Owner: Mrs. Lakshmi Iyer. Property: 2BHK, 7th main, Indiranagar.</li>
+        <li>Rent ₹38,000/month, due on the 5th. Late fee ₹500/day after the 10th.</li>
+        <li>Security deposit ₹76,000 — refundable, no interest, returnable within 30 days of vacating.</li>
+        <li>Notice period 60 days, either side. Escalation +10% on renewal.</li>
+        <li>Tenant pays electricity, water, internet; owner pays maintenance.</li>
+      </ul>
+      <div class="sheet-footer">
+        <button class="btn-ghost" style="border:1px solid var(--border); border-radius:8px; padding:0 16px; flex:1;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy
+        </button>
+        <button class="btn-ghost" style="border:1px solid var(--border); border-radius:8px; padding:0 16px; flex:1;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Share summary
+        </button>
+      </div>
+    </div>
+    <div class="gesturebar"></div>
+  </div>
+</div>
+
+<!-- ===================== 8. REMOVE ADS PAYWALL ===================== -->
+<div class="section">
+  <h2>Remove Ads — Paywall</h2>
+  <span class="num">Screen 24</span>
+</div>
+
+<div class="pair">
+  <span class="pair-label">Light · 360 × 800</span>
+  <div class="device tall mode-light">
+    <div class="statusbar">
+      <span>9:41</span>
+      <span class="right">
+        <svg width="14" height="10" viewBox="0 0 14 10"><rect x="0" y="6" width="2" height="4" rx="0.5" fill="currentColor"/><rect x="4" y="4" width="2" height="6" rx="0.5" fill="currentColor"/><rect x="8" y="2" width="2" height="8" rx="0.5" fill="currentColor"/><rect x="12" y="0" width="2" height="10" rx="0.5" fill="currentColor"/></svg>
+        <svg width="14" height="10" viewBox="0 0 16 12"><path d="M2 4.5c3.5-3 8.5-3 12 0M4.5 7c2-1.5 5-1.5 7 0M8 9.5l.01.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>
+        <svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+      </span>
+    </div>
+    <div class="appbar">
+      <span class="iconbtn">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </span>
+      <span class="title"></span>
+      <button class="btn-ghost accent">Restore</button>
+    </div>
+    <div class="pw">
+      <div class="body">
+        <div class="pw-card">
+          <span class="pw-glyph">
+            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </span>
+          <h2 class="pw-title">Remove ads</h2>
+          <p class="pw-price">₹99 once. Forever.</p>
+          <ul class="pw-benefits">
+            <li>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>No banners on Home — clean list, all the time.</span>
+            </li>
+            <li>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>No interstitials between scans.</span>
+            </li>
+            <li>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Unlimited AI summaries — no ad gate, instant results.</span>
+            </li>
+          </ul>
+          <button class="btn-primary">Buy — ₹99</button>
+          <div style="height:12px;"></div>
+          <button class="btn-ghost" style="height:48px; width:100%;">Restore purchase</button>
+        </div>
+        <p class="pw-foot">One-time purchase. No subscription.<br/>Linked to your Google Play account.</p>
+      </div>
+    </div>
+    <div class="gesturebar"></div>
+  </div>
+</div>
+
+<div class="pair">
+  <span class="pair-label">Dark · 360 × 800</span>
+  <div class="device tall mode-dark">
+    <div class="statusbar">
+      <span>9:41</span>
+      <span class="right">
+        <svg width="14" height="10" viewBox="0 0 14 10"><rect x="0" y="6" width="2" height="4" rx="0.5" fill="currentColor"/><rect x="4" y="4" width="2" height="6" rx="0.5" fill="currentColor"/><rect x="8" y="2" width="2" height="8" rx="0.5" fill="currentColor"/><rect x="12" y="0" width="2" height="10" rx="0.5" fill="currentColor"/></svg>
+        <svg width="14" height="10" viewBox="0 0 16 12"><path d="M2 4.5c3.5-3 8.5-3 12 0M4.5 7c2-1.5 5-1.5 7 0M8 9.5l.01.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>
+        <svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+      </span>
+    </div>
+    <div class="appbar">
+      <span class="iconbtn">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </span>
+      <span class="title"></span>
+      <button class="btn-ghost accent">Restore</button>
+    </div>
+    <div class="pw">
+      <div class="body">
+        <div class="pw-card">
+          <span class="pw-glyph">
+            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </span>
+          <h2 class="pw-title">Remove ads</h2>
+          <p class="pw-price">₹99 once. Forever.</p>
+          <ul class="pw-benefits">
+            <li>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>No banners on Home — clean list, all the time.</span>
+            </li>
+            <li>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>No interstitials between scans.</span>
+            </li>
+            <li>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Unlimited AI summaries — no ad gate, instant results.</span>
+            </li>
+          </ul>
+          <button class="btn-primary">Buy — ₹99</button>
+          <div style="height:12px;"></div>
+          <button class="btn-ghost" style="height:48px; width:100%;">Restore purchase</button>
+        </div>
+        <p class="pw-foot">One-time purchase. No subscription.<br/>Linked to your Google Play account.</p>
+      </div>
+    </div>
+    <div class="gesturebar"></div>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">
+  <span>Snapdoc · Hero Mockups · v1.0</span>
+  <span>Tokens — see 02_design_system.md</span>
+</div>
+
+</body>
+</html>
