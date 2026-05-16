@@ -65,8 +65,6 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix = ".debug"
-            versionNameSuffix = "-debug"
             isMinifyEnabled = false
 
             // Debug always uses Google's official test IDs.
