@@ -1,5 +1,6 @@
 package com.snapdoc.app.feature.document
 
+import android.app.Activity
 import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -59,6 +60,7 @@ fun DocumentDetailScreen(
     val state by viewModel.state.collectAsState()
     val colors = SnapdocTheme.colors
     val context = LocalContext.current
+    val activity = context as? Activity
     var summarySheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
@@ -142,7 +144,7 @@ fun DocumentDetailScreen(
                     leadingIcon = Icons.Outlined.AutoAwesome,
                     onClick = {
                         summarySheet = true
-                        viewModel.requestSummary()
+                        viewModel.requestSummary(activity)
                     },
                     modifier = Modifier.weight(1f),
                 )
@@ -159,7 +161,7 @@ fun DocumentDetailScreen(
         ) {
             AiSummarySheetContent(
                 state = state,
-                onRegenerate = viewModel::regenerateSummary,
+                onRegenerate = { viewModel.regenerateSummary(activity) },
                 onClose = {
                     summarySheet = false
                     scope.launch { sheetState.hide() }

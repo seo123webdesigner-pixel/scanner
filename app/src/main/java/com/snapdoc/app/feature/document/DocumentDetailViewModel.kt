@@ -1,8 +1,10 @@
 package com.snapdoc.app.feature.document
 
+import android.app.Activity
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.snapdoc.app.core.ads.AdsManager
 import com.snapdoc.app.core.data.model.AiSummary
 import com.snapdoc.app.core.data.model.Document
 import com.snapdoc.app.core.data.model.Page
@@ -39,6 +41,7 @@ class DocumentDetailViewModel @Inject constructor(
     private val ocr: OcrRepository,
     private val summaries: SummaryRepository,
     private val gemini: GeminiClient,
+    private val ads: AdsManager,
 ) : ViewModel() {
 
     private val documentId: Long = checkNotNull(
@@ -74,7 +77,12 @@ class DocumentDetailViewModel @Inject constructor(
         }
     }
 
-    fun requestSummary() {
+    /**
+     * Shows a rewarded ad (free tier) then generates the summary. Owners of
+     * Remove Ads skip the gate because [AdsManager.showRewarded] short-circuits.
+     * Activity reference comes from the composable; VMs don't hold one.
+     */
+    fun requestSummary(activity: Activity?) {
         val cached = state.value.summary
         if (cached != null) return
         val text = state.value.ocrText
@@ -84,6 +92,11 @@ class DocumentDetailViewModel @Inject constructor(
         }
         ephemeral.update { it.copy(summarizing = true, error = null) }
         viewModelScope.launch {
+            val earned = activity?.let { ads.showRewarded(it) } ?: true
+            if (!earned) {
+                ephemeral.update { it.copy(summarizing = false) }
+                return@launch
+            }
             gemini.summarize(text).fold(
                 onSuccess = { summary ->
                     summaries.save(documentId, summary)
@@ -102,10 +115,10 @@ class DocumentDetailViewModel @Inject constructor(
         }
     }
 
-    fun regenerateSummary() {
+    fun regenerateSummary(activity: Activity?) {
         viewModelScope.launch {
             summaries.deleteFor(documentId)
-            requestSummary()
+            requestSummary(activity)
         }
     }
 
