@@ -15,7 +15,7 @@ import javax.inject.Qualifier
 @Module
 @InstallIn(SingletonComponent::class)
 object DispatcherModule {
-    @IoDispatcher @Provides fun io(): CoroutineDispatcher = Dispatchers.IO
-    @DefaultDispatcher @Provides fun default(): CoroutineDispatcher = Dispatchers.Default
-    @MainDispatcher @Provides fun main(): CoroutineDispatcher = Dispatchers.Main
+    @IoDispatcher @Provides fun provideIo(): CoroutineDispatcher = Dispatchers.IO
+    @DefaultDispatcher @Provides fun provideDefault(): CoroutineDispatcher = Dispatchers.Default
+    @MainDispatcher @Provides fun provideMain(): CoroutineDispatcher = Dispatchers.Main
 }
