@@ -2,7 +2,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base theme: only used during the splash window. Compose owns the rest. -->
-    <style name="Theme.Snapdoc" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Theme.Snapdoc" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>
