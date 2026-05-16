@@ -1,0 +1,27 @@
+# Copy to local.properties and fill in real values.
+# NEVER commit local.properties.
+
+# Android SDK location (Android Studio fills this in automatically on first sync).
+sdk.dir=/Users/you/Library/Android/sdk
+
+# --- Gemini ---
+# Get from https://aistudio.google.com/apikey
+GEMINI_API_KEY=
+
+# --- AdMob ---
+# When left blank, debug builds use Google's official AdMob test IDs.
+# For release, supply REAL IDs from https://apps.admob.com/.
+ADMOB_APP_ID=
+ADMOB_BANNER_ID=
+ADMOB_NATIVE_ID=
+ADMOB_INTERSTITIAL_ID=
+ADMOB_REWARDED_ID=
+
+# --- Release signing ---
+# Generate a keystore once with:
+#   keytool -genkey -v -keystore snapdoc-release.jks \
+#     -keyalg RSA -keysize 2048 -validity 10000 -alias snapdoc
+RELEASE_KEYSTORE_PATH=
+RELEASE_KEYSTORE_PASSWORD=
+RELEASE_KEY_ALIAS=
+RELEASE_KEY_PASSWORD=

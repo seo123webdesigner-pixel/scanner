@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Base theme: only used during the splash window. Compose owns the rest. -->
+    <style name="Theme.Snapdoc" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:enforceNavigationBarContrast" tools:targetApi="29">false</item>
+        <item name="android:enforceStatusBarContrast" tools:targetApi="29">false</item>
+        <item name="android:windowBackground">@color/snapdoc_bg_light</item>
+    </style>
+
+    <style name="Theme.Snapdoc.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/snapdoc_bg_light</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="postSplashScreenTheme">@style/Theme.Snapdoc</item>
+    </style>
+
+</resources>
