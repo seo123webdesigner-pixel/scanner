@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Bridge to system XML (splash window only). Compose theme owns all in-app color. -->
+    <color name="snapdoc_bg_light">#FAFAF8</color>
+    <color name="snapdoc_bg_dark">#0C0C0D</color>
+</resources>

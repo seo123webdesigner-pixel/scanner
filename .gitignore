@@ -1,0 +1,39 @@
+# Built artifacts
+/build
+/app/build
+**/build/
+**/generated/
+
+# Gradle
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+!gradle-wrapper.properties
+
+# IDE
+.idea/
+*.iml
+.fleet/
+.vscode/
+*.swp
+.DS_Store
+local.properties
+
+# Secrets — NEVER commit
+local.properties
+*.keystore
+*.jks
+keystore.properties
+**/google-services.json
+**/firebase-app-distribution-credentials.json
+
+# Captures / logs
+captures/
+*.log
+*.hprof
+
+# Kotlin
+.kotlin/
+
+# Coverage
+**/coverage/

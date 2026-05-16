@@ -1,0 +1,44 @@
+package com.snapdoc.app.core.data.model
+
+/** Domain model — the rest of the app sees this, never raw entities. */
+data class Document(
+    val id: Long,
+    val filename: String,
+    val pdfPath: String,
+    val pageCount: Int,
+    val fileSizeBytes: Long,
+    val category: String,
+    val createdAt: Long,
+    val updatedAt: Long,
+    val favorite: Boolean,
+    val passwordProtected: Boolean,
+)
+
+data class Page(
+    val id: Long,
+    val documentId: Long,
+    val pageIndex: Int,
+    val imagePath: String,
+    val thumbnailPath: String?,
+)
+
+data class AiSummary(
+    val tldr: String,
+    val bullets: List<String>,
+    val generatedAt: Long,
+)
+
+/** Built-in default categories from spec §2.4. */
+enum class BuiltInCategory(val displayName: String) {
+    Bills("Bills"),
+    Ids("IDs"),
+    Receipts("Receipts"),
+    Notes("Notes"),
+    Contracts("Contracts"),
+    Other("Other");
+
+    companion object {
+        fun fromName(name: String?): BuiltInCategory =
+            entries.firstOrNull { it.displayName.equals(name, ignoreCase = true) } ?: Other
+    }
+}
