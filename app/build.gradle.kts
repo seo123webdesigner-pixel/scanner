@@ -7,10 +7,8 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
-    // Apply Firebase plugins only when google-services.json is present.
-    // Uncomment after dropping the file into app/.
-    // alias(libs.plugins.google.services)
-    // alias(libs.plugins.firebase.crashlytics)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
 }
 
 val localProperties = Properties().apply {
