@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Snapdoc notification small icon. Status-bar icons are rendered as a
+     white silhouette via the alpha channel, so this is white-on-transparent.
+     Source: design/icon-source/snapdoc-icon-notification.svg -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Scan-corner brackets -->
+    <path android:pathData="M3,7 L3,3 L7,3" android:strokeColor="#FFFFFF" android:strokeWidth="1.8" android:strokeLineCap="round" android:strokeLineJoin="round" />
+    <path android:pathData="M17,3 L21,3 L21,7" android:strokeColor="#FFFFFF" android:strokeWidth="1.8" android:strokeLineCap="round" android:strokeLineJoin="round" />
+    <path android:pathData="M3,17 L3,21 L7,21" android:strokeColor="#FFFFFF" android:strokeWidth="1.8" android:strokeLineCap="round" android:strokeLineJoin="round" />
+    <path android:pathData="M17,21 L21,21 L21,17" android:strokeColor="#FFFFFF" android:strokeWidth="1.8" android:strokeLineCap="round" android:strokeLineJoin="round" />
+
+    <!-- Document text lines -->
+    <path android:pathData="M8,10 L14,10" android:strokeColor="#FFFFFF" android:strokeWidth="1.4" android:strokeLineCap="round" android:strokeAlpha="0.7" />
+    <path android:pathData="M8,13 L16,13" android:strokeColor="#FFFFFF" android:strokeWidth="1.4" android:strokeLineCap="round" android:strokeAlpha="0.7" />
+    <path android:pathData="M8,16 L13,16" android:strokeColor="#FFFFFF" android:strokeWidth="1.4" android:strokeLineCap="round" android:strokeAlpha="0.7" />
+</vector>
