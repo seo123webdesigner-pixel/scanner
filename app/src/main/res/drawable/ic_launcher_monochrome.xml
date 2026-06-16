@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Snapdoc themed (monochrome) layer for Android 13+ dynamic theming.
+     The system tints using the alpha channel, so secondary strokes use a
+     reduced alpha to preserve visual hierarchy.
+     Source: design/icon-source/snapdoc-icon-monochrome.svg -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="1024"
+    android:viewportHeight="1024">
+
+    <group
+        android:pivotX="512"
+        android:pivotY="512"
+        android:scaleX="0.91"
+        android:scaleY="0.91">
+
+        <!-- Document card outline -->
+        <path
+            android:pathData="M298,220 L726,220 A22,22 0 0 1 748,242 L748,782 A22,22 0 0 1 726,804 L298,804 A22,22 0 0 1 276,782 L276,242 A22,22 0 0 1 298,220 Z"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="14" />
+
+        <!-- Text lines -->
+        <path android:pathData="M324,310 L572,310" android:strokeColor="#FFFFFF" android:strokeWidth="22" android:strokeLineCap="round" android:strokeAlpha="0.9" />
+        <path android:pathData="M324,380 L688,380" android:strokeColor="#FFFFFF" android:strokeWidth="22" android:strokeLineCap="round" android:strokeAlpha="0.9" />
+        <path android:pathData="M324,450 L640,450" android:strokeColor="#FFFFFF" android:strokeWidth="22" android:strokeLineCap="round" android:strokeAlpha="0.9" />
+        <path android:pathData="M324,520 L700,520" android:strokeColor="#FFFFFF" android:strokeWidth="22" android:strokeLineCap="round" android:strokeAlpha="0.9" />
+        <path android:pathData="M324,590 L606,590" android:strokeColor="#FFFFFF" android:strokeWidth="22" android:strokeLineCap="round" android:strokeAlpha="0.9" />
+
+        <!-- Accent line -->
+        <path android:pathData="M324,668 L616,668" android:strokeColor="#FFFFFF" android:strokeWidth="14" android:strokeLineCap="round" android:strokeAlpha="0.8" />
+
+        <!-- Scan-corner brackets -->
+        <path android:pathData="M168,308 L168,168 L308,168" android:strokeColor="#FFFFFF" android:strokeWidth="44" android:strokeLineCap="round" android:strokeLineJoin="round" />
+        <path android:pathData="M716,168 L856,168 L856,308" android:strokeColor="#FFFFFF" android:strokeWidth="44" android:strokeLineCap="round" android:strokeLineJoin="round" />
+        <path android:pathData="M168,716 L168,856 L308,856" android:strokeColor="#FFFFFF" android:strokeWidth="44" android:strokeLineCap="round" android:strokeLineJoin="round" />
+        <path android:pathData="M716,856 L856,856 L856,716" android:strokeColor="#FFFFFF" android:strokeWidth="44" android:strokeLineCap="round" android:strokeLineJoin="round" />
+    </group>
+</vector>

@@ -1,25 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Snapdoc mark: rounded document square + diagonal scan beam.
-     Per design system §1.3: 22% radius, 8% stroke, 28° beam, 4% gap. -->
+<!-- Snapdoc launcher foreground: scanned document card framed by scan-corner
+     brackets. Scaled to 91% so it sits within the adaptive-icon safe zone.
+     Source: design/icon-source/snapdoc-icon-foreground.svg -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
+    android:viewportWidth="1024"
+    android:viewportHeight="1024">
 
-    <!-- Rounded square: 60dp wide in the 72dp safe zone, 13.2 radius (22%), 4.8 stroke (8%). -->
-    <path
-        android:pathData="M37.2,24 L70.8,24 A13.2,13.2 0 0 1 84,37.2 L84,70.8 A13.2,13.2 0 0 1 70.8,84 L37.2,84 A13.2,13.2 0 0 1 24,70.8 L24,37.2 A13.2,13.2 0 0 1 37.2,24 Z"
-        android:strokeColor="#111111"
-        android:strokeWidth="4.8"
-        android:fillColor="#00000000" />
+    <group
+        android:pivotX="512"
+        android:pivotY="512"
+        android:scaleX="0.91"
+        android:scaleY="0.91">
 
-    <!-- Diagonal scan beam at ~28°, stroke 4.8.
-         Goes from upper-right (just outside square) to lower-left. -->
-    <path
-        android:pathData="M90,38 L18,76"
-        android:strokeColor="#111111"
-        android:strokeWidth="4.8"
-        android:strokeLineCap="round" />
+        <!-- Document card -->
+        <path
+            android:pathData="M298,220 L726,220 A22,22 0 0 1 748,242 L748,782 A22,22 0 0 1 726,804 L298,804 A22,22 0 0 1 276,782 L276,242 A22,22 0 0 1 298,220 Z"
+            android:fillColor="#FFFFFF"
+            android:strokeColor="#111111"
+            android:strokeWidth="12" />
 
+        <!-- Heading line -->
+        <path android:pathData="M324,310 L572,310" android:strokeColor="#111111" android:strokeWidth="20" android:strokeLineCap="round" />
+        <!-- Body lines -->
+        <path android:pathData="M324,370 L688,370" android:strokeColor="#111111" android:strokeWidth="20" android:strokeLineCap="round" android:strokeAlpha="0.5" />
+        <path android:pathData="M324,420 L640,420" android:strokeColor="#111111" android:strokeWidth="20" android:strokeLineCap="round" android:strokeAlpha="0.5" />
+        <path android:pathData="M324,470 L700,470" android:strokeColor="#111111" android:strokeWidth="20" android:strokeLineCap="round" android:strokeAlpha="0.5" />
+        <path android:pathData="M324,520 L606,520" android:strokeColor="#111111" android:strokeWidth="20" android:strokeLineCap="round" android:strokeAlpha="0.5" />
+        <path android:pathData="M324,570 L688,570" android:strokeColor="#111111" android:strokeWidth="20" android:strokeLineCap="round" android:strokeAlpha="0.5" />
+
+        <!-- Amber scan-result accent -->
+        <path android:pathData="M324,668 L540,668" android:strokeColor="#D97706" android:strokeWidth="12" android:strokeLineCap="round" />
+        <path android:pathData="M568,668 L616,668" android:strokeColor="#D97706" android:strokeWidth="12" android:strokeLineCap="round" android:strokeAlpha="0.5" />
+
+        <!-- Scan-corner brackets -->
+        <path android:pathData="M168,308 L168,168 L308,168" android:strokeColor="#111111" android:strokeWidth="38" android:strokeLineCap="round" android:strokeLineJoin="round" />
+        <path android:pathData="M716,168 L856,168 L856,308" android:strokeColor="#111111" android:strokeWidth="38" android:strokeLineCap="round" android:strokeLineJoin="round" />
+        <path android:pathData="M168,716 L168,856 L308,856" android:strokeColor="#111111" android:strokeWidth="38" android:strokeLineCap="round" android:strokeLineJoin="round" />
+        <path android:pathData="M716,856 L856,856 L856,716" android:strokeColor="#111111" android:strokeWidth="38" android:strokeLineCap="round" android:strokeLineJoin="round" />
+    </group>
 </vector>

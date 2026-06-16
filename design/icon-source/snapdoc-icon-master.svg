@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <rect width="1024" height="1024" rx="232" ry="232" fill="#FAFAF8"></rect>
+  
+  <rect x="276" y="220" width="472" height="584" rx="22" ry="22" fill="#FFFFFF" stroke="#111111" stroke-width="12"></rect>
+  <g stroke="#111111" stroke-width="20" stroke-linecap="round">
+    <line x1="324" y1="310" x2="572" y2="310"></line>
+    <line x1="324" y1="370" x2="688" y2="370" opacity="0.5"></line>
+    <line x1="324" y1="420" x2="640" y2="420" opacity="0.5"></line>
+    <line x1="324" y1="470" x2="700" y2="470" opacity="0.5"></line>
+    <line x1="324" y1="520" x2="606" y2="520" opacity="0.5"></line>
+    <line x1="324" y1="570" x2="688" y2="570" opacity="0.5"></line>
+  </g>
+  <line x1="324" y1="668" x2="540" y2="668" stroke="#D97706" stroke-width="12" stroke-linecap="round"></line>
+  <line x1="568" y1="668" x2="616" y2="668" stroke="#D97706" stroke-width="12" stroke-linecap="round" opacity="0.5"></line>
+  <g stroke="#111111" stroke-width="38" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M168 308 L168 168 L308 168"></path>
+    <path d="M716 168 L856 168 L856 308"></path>
+    <path d="M168 716 L168 856 L308 856"></path>
+    <path d="M716 856 L856 856 L856 716"></path>
+  </g>
+
+</svg>
