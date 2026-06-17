@@ -1,8 +1,8 @@
 package com.snapdoc.app.feature.home
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -10,18 +10,23 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.DocumentScanner
 import androidx.compose.material.icons.outlined.FileCopy
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -31,7 +36,6 @@ import com.snapdoc.app.core.ui.components.EmptyState
 import com.snapdoc.app.core.ui.components.IconOnlyButton
 import com.snapdoc.app.core.ui.components.PrimaryButton
 import com.snapdoc.app.core.ui.components.SnapdocTopAppBar
-import com.snapdoc.app.core.ui.theme.SnapdocText
 import com.snapdoc.app.core.ui.theme.SnapdocTheme
 import com.snapdoc.app.core.util.formatMetadata
 import com.snapdoc.app.feature.home.support.categoryColorsFor
@@ -45,28 +49,54 @@ fun HomeScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val colors = SnapdocTheme.colors
+    var showDeleteConfirm by remember { mutableStateOf(false) }
+
+    // In selection mode, system back clears the selection instead of leaving Home.
+    BackHandler(enabled = state.selectionMode) { viewModel.clearSelection() }
 
     Scaffold(
         containerColor = colors.bg,
         topBar = {
-            SnapdocTopAppBar(
-                title = "Snapdoc",
-                actions = {
-                    IconOnlyButton(
-                        icon = Icons.Outlined.Search,
-                        contentDescription = "Search",
-                        onClick = onSearch,
-                    )
-                },
-            )
+            if (state.selectionMode) {
+                SnapdocTopAppBar(
+                    title = "${state.selectedIds.size} selected",
+                    leading = {
+                        IconOnlyButton(
+                            icon = Icons.Outlined.Close,
+                            contentDescription = "Clear selection",
+                            onClick = viewModel::clearSelection,
+                        )
+                    },
+                    actions = {
+                        IconOnlyButton(
+                            icon = Icons.Outlined.Delete,
+                            contentDescription = "Delete selected",
+                            onClick = { showDeleteConfirm = true },
+                        )
+                    },
+                )
+            } else {
+                SnapdocTopAppBar(
+                    title = "Snapdoc",
+                    actions = {
+                        IconOnlyButton(
+                            icon = Icons.Outlined.Search,
+                            contentDescription = "Search",
+                            onClick = onSearch,
+                        )
+                    },
+                )
+            }
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = onScan,
-                containerColor = colors.primary,
-                contentColor = colors.onPrimary,
-            ) {
-                Icon(Icons.Outlined.DocumentScanner, contentDescription = "Scan", modifier = Modifier.size(24.dp))
+            if (!state.selectionMode) {
+                FloatingActionButton(
+                    onClick = onScan,
+                    containerColor = colors.primary,
+                    contentColor = colors.onPrimary,
+                ) {
+                    Icon(Icons.Outlined.DocumentScanner, contentDescription = "Scan", modifier = Modifier.size(24.dp))
+                }
             }
         },
         bottomBar = { BannerAd() },
@@ -103,12 +133,34 @@ fun HomeScreen(
                             categoryName = doc.category,
                             categoryStripColor = accent.strip,
                             categoryChipTextColor = accent.chipText,
-                            onClick = { onOpen(doc.id) },
+                            onClick = {
+                                if (state.selectionMode) viewModel.toggleSelection(doc.id) else onOpen(doc.id)
+                            },
+                            onLongClick = { viewModel.toggleSelection(doc.id) },
                             selected = doc.id in state.selectedIds,
                         )
                     }
                 }
             }
         }
+    }
+
+    if (showDeleteConfirm) {
+        val count = state.selectedIds.size
+        val noun = if (count == 1) "document" else "documents"
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            title = { Text("Delete $count $noun?") },
+            text = { Text("This permanently removes the selected $noun from your device. This can't be undone.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.deleteSelected()
+                    showDeleteConfirm = false
+                }) { Text("Delete") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirm = false }) { Text("Cancel") }
+            },
+        )
     }
 }

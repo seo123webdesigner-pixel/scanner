@@ -13,6 +13,10 @@ sealed class SnapdocRoute(val path: String) {
     object Onboarding : SnapdocRoute("onboarding")
     object Home : SnapdocRoute("home")
     object Categories : SnapdocRoute("categories")
+    object CategoryDocuments : SnapdocRoute("category/{name}") {
+        fun build(name: String) = "category/${android.net.Uri.encode(name)}"
+        const val ARG_NAME = "name"
+    }
     object Search : SnapdocRoute("search")
     object Scanner : SnapdocRoute("scanner")
     object Save : SnapdocRoute("save?pdfUri={pdfUri}") {
