@@ -98,7 +98,7 @@ fun HomeScreen(
                 )
             } else {
                 SnapdocTopAppBar(
-                    title = "Snapdoc",
+                    title = "SnapDoc",
                     actions = {
                         IconOnlyButton(
                             icon = Icons.Outlined.Search,

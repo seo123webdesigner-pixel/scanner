@@ -46,7 +46,7 @@ fun AboutScreen(onBack: () -> Unit) {
             verticalArrangement = Arrangement.Top,
         ) {
             Spacer(Modifier.height(24.dp))
-            Text("snapdoc", style = SnapdocText.headlineXl, color = colors.textPrimary)
+            Text("SnapDoc", style = SnapdocText.headlineXl, color = colors.textPrimary)
             Text("v${BuildConfig.VERSION_NAME}", style = SnapdocText.caption, color = colors.textTertiary)
             Spacer(Modifier.height(32.dp))
             Text(
@@ -56,7 +56,7 @@ fun AboutScreen(onBack: () -> Unit) {
             )
             Spacer(Modifier.height(24.dp))
             Text(
-                "Snapdoc is built privacy-first. There are no accounts, no required signups, and no analytics tied to your identity. Anonymous crash reports help us fix bugs.",
+                "SnapDoc is built privacy-first. There are no accounts, no required signups, and no analytics tied to your identity. Anonymous crash reports help us fix bugs.",
                 style = SnapdocText.bodyLg,
                 color = colors.textSecondary,
             )
