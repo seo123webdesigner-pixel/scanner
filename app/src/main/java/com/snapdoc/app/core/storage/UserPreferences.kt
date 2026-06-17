@@ -30,6 +30,8 @@ class UserPreferences @Inject constructor(
         val defaultPageSize = stringPreferencesKey("default_page_size")
         val interstitialSaveCount = intPreferencesKey("interstitial_save_count")
         val lastInterstitialAt = intPreferencesKey("last_interstitial_at_seconds")
+        val interstitialShownCount = intPreferencesKey("interstitial_shown_count")
+        val paywallPrompted = booleanPreferencesKey("paywall_prompted")
         val removeAdsPurchased = booleanPreferencesKey("remove_ads_purchased")
     }
 
@@ -40,6 +42,8 @@ class UserPreferences @Inject constructor(
     val defaultPageSize: Flow<String> = context.dataStore.data.map { it[Keys.defaultPageSize] ?: "Auto" }
     val saveCount: Flow<Int> = context.dataStore.data.map { it[Keys.interstitialSaveCount] ?: 0 }
     val lastInterstitialAt: Flow<Int> = context.dataStore.data.map { it[Keys.lastInterstitialAt] ?: 0 }
+    val interstitialShownCount: Flow<Int> = context.dataStore.data.map { it[Keys.interstitialShownCount] ?: 0 }
+    val paywallPrompted: Flow<Boolean> = context.dataStore.data.map { it[Keys.paywallPrompted] ?: false }
     val removeAdsPurchased: Flow<Boolean> = context.dataStore.data.map { it[Keys.removeAdsPurchased] ?: false }
 
     suspend fun markOnboardingComplete() = context.dataStore.edit { it[Keys.onboardingComplete] = true }
@@ -52,6 +56,12 @@ class UserPreferences @Inject constructor(
     }
     suspend fun setLastInterstitialAt(seconds: Int) = context.dataStore.edit {
         it[Keys.lastInterstitialAt] = seconds
+    }
+    suspend fun incrementInterstitialShownCount() = context.dataStore.edit {
+        it[Keys.interstitialShownCount] = (it[Keys.interstitialShownCount] ?: 0) + 1
+    }
+    suspend fun setPaywallPrompted(value: Boolean) = context.dataStore.edit {
+        it[Keys.paywallPrompted] = value
     }
     suspend fun setRemoveAdsPurchased(value: Boolean) = context.dataStore.edit {
         it[Keys.removeAdsPurchased] = value

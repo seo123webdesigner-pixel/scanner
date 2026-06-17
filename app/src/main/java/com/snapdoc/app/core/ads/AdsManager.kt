@@ -98,6 +98,7 @@ class AdsManager @Inject constructor(
             }
         }
         prefs.setLastInterstitialAt(nowSeconds)
+        prefs.incrementInterstitialShownCount()
         ad.show(activity)
     }
 

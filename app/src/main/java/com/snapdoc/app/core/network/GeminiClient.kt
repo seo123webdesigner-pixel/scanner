@@ -111,6 +111,17 @@ class GeminiClient @Inject constructor(
                     )
                 },
             )
+            // Summaries/classification don't need reasoning; disabling thinking
+            // keeps gemini-2.5-flash fast and cheap (thinkingBudget 0).
+            put(
+                "generationConfig",
+                buildJsonObject {
+                    put(
+                        "thinkingConfig",
+                        buildJsonObject { put("thinkingBudget", JsonPrimitive(0)) },
+                    )
+                },
+            )
         }.toString().toRequestBody(JSON_MEDIA)
         val request = Request.Builder().url(url).post(body).build()
 
@@ -162,7 +173,7 @@ class GeminiClient @Inject constructor(
 
     companion object {
         private const val ENDPOINT =
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent"
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
         private val JSON_MEDIA = "application/json".toMediaType()
         private const val MAX_ATTEMPTS = 3
         private val BACKOFFS_MS = longArrayOf(1_000, 2_000, 4_000)

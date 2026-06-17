@@ -2,6 +2,8 @@ package com.snapdoc.app.feature.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.ads.nativead.NativeAd
+import com.snapdoc.app.core.ads.NativeAdManager
 import com.snapdoc.app.core.data.model.Document
 import com.snapdoc.app.core.data.repository.DocumentRepository
 import com.snapdoc.app.core.storage.UserPreferences
@@ -10,7 +12,6 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -21,12 +22,16 @@ data class HomeUiState(
     val removeAdsPurchased: Boolean = false,
     val selectionMode: Boolean = false,
     val selectedIds: Set<Long> = emptySet(),
+    val nativeAds: List<NativeAd> = emptyList(),
 )
+
+private const val INTERSTITIALS_BEFORE_PAYWALL = 5
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val documents: DocumentRepository,
-    prefs: UserPreferences,
+    private val prefs: UserPreferences,
+    nativeAdManager: NativeAdManager,
 ) : ViewModel() {
 
     private val selection = MutableStateFlow<Set<Long>>(emptySet())
@@ -35,15 +40,33 @@ class HomeViewModel @Inject constructor(
         documents.observeAll(),
         prefs.removeAdsPurchased,
         selection,
-    ) { docs, removeAds, selected ->
+        nativeAdManager.ads,
+    ) { docs, removeAds, selected, ads ->
         HomeUiState(
             documents = docs,
             loading = false,
             removeAdsPurchased = removeAds,
             selectionMode = selected.isNotEmpty(),
             selectedIds = selected,
+            nativeAds = if (removeAds) emptyList() else ads,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
+
+    /**
+     * True once the user has seen enough interstitials to be offered Remove Ads,
+     * and only until the paywall has been surfaced once (or they purchase).
+     */
+    val paywallDue: StateFlow<Boolean> = combine(
+        prefs.interstitialShownCount,
+        prefs.paywallPrompted,
+        prefs.removeAdsPurchased,
+    ) { shown, prompted, owned ->
+        shown >= INTERSTITIALS_BEFORE_PAYWALL && !prompted && !owned
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
+    fun markPaywallPrompted() {
+        viewModelScope.launch { prefs.setPaywallPrompted(true) }
+    }
 
     fun toggleSelection(id: Long) {
         selection.value = selection.value.toMutableSet().apply {
