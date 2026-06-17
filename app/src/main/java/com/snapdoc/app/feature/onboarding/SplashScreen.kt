@@ -71,6 +71,6 @@ fun SplashScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text("snapdoc", style = SnapdocText.headlineXl, color = colors.textPrimary)
+        Text("SnapDoc", style = SnapdocText.headlineXl, color = colors.textPrimary)
     }
 }

@@ -103,13 +103,13 @@ fun SettingsScreen(
                 onClick = onPaywall,
             )
             SettingsRow(
-                title = "About Snapdoc",
+                title = "About SnapDoc",
                 icon = Icons.Outlined.Info,
                 onClick = onAbout,
             )
             Spacer(Modifier.height(24.dp))
             Text(
-                "Snapdoc v${BuildConfig.VERSION_NAME}",
+                "SnapDoc v${BuildConfig.VERSION_NAME}",
                 style = SnapdocText.caption,
                 color = colors.textTertiary,
                 modifier = Modifier.padding(horizontal = 16.dp),
