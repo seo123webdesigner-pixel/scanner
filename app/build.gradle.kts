@@ -40,6 +40,9 @@ android {
         applicationId = "com.snapdoc.app"
         minSdk = 26
         targetSdk = 35
+        // First Play upload starts at 1. Increment versionCode by 1 for EVERY
+        // upload (Play requires a unique, higher code). versionName is the
+        // public X.Y.Z label shown to users.
         versionCode = 1
         versionName = "1.0.0"
 
