@@ -2,6 +2,7 @@ package com.snapdoc.app.core.ads
 
 import android.app.Activity
 import android.content.Context
+import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
@@ -16,6 +17,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 import timber.log.Timber
 
 /**
@@ -98,22 +101,36 @@ class AdsManager @Inject constructor(
         ad.show(activity)
     }
 
-    /** Shows a rewarded ad before the AI summary; result is true if the user earned the reward. */
+    /**
+     * Shows a rewarded ad before the AI summary. Suspends until the ad is
+     * dismissed and returns true only if the user actually earned the reward.
+     *
+     * If no ad is loaded or it fails to show, the gate is skipped (returns
+     * true) so ad availability never blocks the feature.
+     */
     suspend fun showRewarded(activity: Activity): Boolean {
         if (prefs.removeAdsPurchased.first()) return true
         val ad = rewarded ?: run {
             Timber.w("Rewarded ad not ready; skipping gate")
+            preloadRewarded()
             return true
         }
-        var earned = false
-        ad.fullScreenContentCallback = object : FullScreenContentCallback() {
-            override fun onAdDismissedFullScreenContent() {
-                rewarded = null
-                preloadRewarded()
+        rewarded = null
+        return suspendCancellableCoroutine { cont ->
+            var earned = false
+            ad.fullScreenContentCallback = object : FullScreenContentCallback() {
+                override fun onAdDismissedFullScreenContent() {
+                    preloadRewarded()
+                    if (cont.isActive) cont.resume(earned)
+                }
+                override fun onAdFailedToShowFullScreenContent(error: AdError) {
+                    Timber.w("Rewarded failed to show: %s", error.message)
+                    preloadRewarded()
+                    if (cont.isActive) cont.resume(true)
+                }
             }
+            ad.show(activity) { earned = true }
         }
-        ad.show(activity) { earned = true }
-        return earned
     }
 
     companion object {
