@@ -90,6 +90,7 @@ fun SnapdocNavGraph() {
                     onScan = { navController.navigate(SnapdocRoute.Scanner.path) },
                     onSearch = { navController.navigate(SnapdocRoute.Search.path) },
                     onOpen = { id -> navController.navigate(SnapdocRoute.Document.build(id)) },
+                    onPaywall = { navController.navigate(SnapdocRoute.Paywall.path) },
                 )
             }
 
