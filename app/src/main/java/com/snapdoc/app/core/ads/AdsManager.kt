@@ -15,7 +15,6 @@ import com.snapdoc.app.core.storage.UserPreferences
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import timber.log.Timber
 
@@ -36,8 +35,6 @@ class AdsManager @Inject constructor(
 
     private var interstitial: InterstitialAd? = null
     private var rewarded: RewardedAd? = null
-    private var lastInterstitialShownAt: Long = 0L
-    private val saveCounter = MutableStateFlow(0)
 
     fun initialize() {
         MobileAds.initialize(context) {
@@ -77,14 +74,19 @@ class AdsManager @Inject constructor(
         )
     }
 
-    /** Call after each document save. Shows interstitial every 3rd save with 60s cooldown. */
+    /**
+     * Call after each document save. Shows interstitial every 3rd save with a
+     * 60s cooldown. Both the save count and the last-shown timestamp are read
+     * from DataStore, so the cadence persists across app restarts.
+     *
+     * The count is incremented in SaveDocumentViewModel before this is called,
+     * so we only read it here (no double counting).
+     */
     suspend fun maybeShowInterstitial(activity: Activity) {
         if (prefs.removeAdsPurchased.first()) return
-        val count = saveCounter.value + 1
-        saveCounter.value = count
-        val now = System.currentTimeMillis()
-        if (count % 3 != 0) return
-        if (now - lastInterstitialShownAt < COOLDOWN_MS) return
+        if (prefs.saveCount.first() % 3 != 0) return
+        val nowSeconds = (System.currentTimeMillis() / 1000).toInt()
+        if (nowSeconds - prefs.lastInterstitialAt.first() < COOLDOWN_SECONDS) return
         val ad = interstitial ?: return
         ad.fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdDismissedFullScreenContent() {
@@ -92,7 +94,7 @@ class AdsManager @Inject constructor(
                 preloadInterstitial()
             }
         }
-        lastInterstitialShownAt = now
+        prefs.setLastInterstitialAt(nowSeconds)
         ad.show(activity)
     }
 
@@ -115,6 +117,6 @@ class AdsManager @Inject constructor(
     }
 
     companion object {
-        private const val COOLDOWN_MS = 60_000L
+        private const val COOLDOWN_SECONDS = 60
     }
 }

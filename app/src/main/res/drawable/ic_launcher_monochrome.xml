@@ -12,8 +12,8 @@
     <group
         android:pivotX="512"
         android:pivotY="512"
-        android:scaleX="0.91"
-        android:scaleY="0.91">
+        android:scaleX="0.62"
+        android:scaleY="0.62">
 
         <!-- Document card outline -->
         <path
