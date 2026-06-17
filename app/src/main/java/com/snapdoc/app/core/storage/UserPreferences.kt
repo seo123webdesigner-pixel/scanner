@@ -39,6 +39,7 @@ class UserPreferences @Inject constructor(
     val defaultScanMode: Flow<String> = context.dataStore.data.map { it[Keys.defaultScanMode] ?: "Auto" }
     val defaultPageSize: Flow<String> = context.dataStore.data.map { it[Keys.defaultPageSize] ?: "Auto" }
     val saveCount: Flow<Int> = context.dataStore.data.map { it[Keys.interstitialSaveCount] ?: 0 }
+    val lastInterstitialAt: Flow<Int> = context.dataStore.data.map { it[Keys.lastInterstitialAt] ?: 0 }
     val removeAdsPurchased: Flow<Boolean> = context.dataStore.data.map { it[Keys.removeAdsPurchased] ?: false }
 
     suspend fun markOnboardingComplete() = context.dataStore.edit { it[Keys.onboardingComplete] = true }
@@ -48,6 +49,9 @@ class UserPreferences @Inject constructor(
     suspend fun setDefaultPageSize(value: String) = context.dataStore.edit { it[Keys.defaultPageSize] = value }
     suspend fun incrementSaveCount() = context.dataStore.edit {
         it[Keys.interstitialSaveCount] = (it[Keys.interstitialSaveCount] ?: 0) + 1
+    }
+    suspend fun setLastInterstitialAt(seconds: Int) = context.dataStore.edit {
+        it[Keys.lastInterstitialAt] = seconds
     }
     suspend fun setRemoveAdsPurchased(value: Boolean) = context.dataStore.edit {
         it[Keys.removeAdsPurchased] = value
