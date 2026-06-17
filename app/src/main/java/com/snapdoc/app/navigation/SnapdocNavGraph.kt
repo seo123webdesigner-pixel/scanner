@@ -19,6 +19,7 @@ import com.snapdoc.app.core.ui.components.BottomNavItem
 import com.snapdoc.app.core.ui.components.SnapdocBottomNav
 import com.snapdoc.app.feature.about.AboutScreen
 import com.snapdoc.app.feature.categories.CategoriesScreen
+import com.snapdoc.app.feature.categories.CategoryDocumentsScreen
 import com.snapdoc.app.feature.document.DocumentDetailScreen
 import com.snapdoc.app.feature.home.HomeScreen
 import com.snapdoc.app.feature.onboarding.OnboardingScreen
@@ -93,9 +94,21 @@ fun SnapdocNavGraph() {
             }
 
             composable(SnapdocRoute.Categories.path) {
-                CategoriesScreen(onOpenCategory = {
-                    // Phase 8 enhancement: deep-link into a per-category filter screen.
+                CategoriesScreen(onOpenCategory = { category ->
+                    navController.navigate(SnapdocRoute.CategoryDocuments.build(category))
                 })
+            }
+
+            composable(
+                route = SnapdocRoute.CategoryDocuments.path,
+                arguments = listOf(
+                    navArgument(SnapdocRoute.CategoryDocuments.ARG_NAME) { type = NavType.StringType },
+                ),
+            ) {
+                CategoryDocumentsScreen(
+                    onBack = { navController.popBackStack() },
+                    onOpen = { id -> navController.navigate(SnapdocRoute.Document.build(id)) },
+                )
             }
 
             composable(SnapdocRoute.Search.path) {
