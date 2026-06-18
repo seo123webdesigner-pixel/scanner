@@ -1,5 +1,6 @@
 package com.snapdoc.app.feature.home
 
+import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -37,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -74,8 +76,10 @@ fun HomeScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val paywallDue by viewModel.paywallDue.collectAsState()
+    val reviewDue by viewModel.reviewDue.collectAsState()
     val folders by viewModel.folders.collectAsState()
     val colors = SnapdocTheme.colors
+    val activity = LocalContext.current as? Activity
     var showDeleteConfirm by remember { mutableStateOf(false) }
     var showMovePicker by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
@@ -90,6 +94,14 @@ fun HomeScreen(
         if (paywallDue) {
             viewModel.markPaywallPrompted()
             onPaywall()
+        }
+    }
+
+    // Ask for an in-app review after the save milestone — but never on the same
+    // visit we're sending the user to the paywall.
+    LaunchedEffect(reviewDue, paywallDue) {
+        if (reviewDue && !paywallDue) {
+            activity?.let { viewModel.maybeAskForReview(it) }
         }
     }
 

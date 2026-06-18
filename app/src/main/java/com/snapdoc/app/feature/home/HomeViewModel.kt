@@ -1,5 +1,6 @@
 package com.snapdoc.app.feature.home
 
+import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.ads.nativead.NativeAd
@@ -7,6 +8,7 @@ import com.snapdoc.app.core.ads.NativeAdManager
 import com.snapdoc.app.core.data.model.Document
 import com.snapdoc.app.core.data.repository.CategoryRepository
 import com.snapdoc.app.core.data.repository.DocumentRepository
+import com.snapdoc.app.core.review.AppReviewManager
 import com.snapdoc.app.core.storage.UserPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -28,6 +30,7 @@ data class HomeUiState(
 )
 
 private const val INTERSTITIALS_BEFORE_PAYWALL = 5
+private const val SAVES_BEFORE_REVIEW = 3
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -35,6 +38,7 @@ class HomeViewModel @Inject constructor(
     private val prefs: UserPreferences,
     nativeAdManager: NativeAdManager,
     categories: CategoryRepository,
+    private val reviews: AppReviewManager,
 ) : ViewModel() {
 
     private val selection = MutableStateFlow<Set<Long>>(emptySet())
@@ -77,6 +81,24 @@ class HomeViewModel @Inject constructor(
 
     fun markPaywallPrompted() {
         viewModelScope.launch { prefs.setPaywallPrompted(true) }
+    }
+
+    /**
+     * True once the user has saved enough documents to be asked for a review,
+     * and only until the in-app review card has been surfaced once.
+     */
+    val reviewDue: StateFlow<Boolean> = combine(
+        prefs.saveCount,
+        prefs.reviewPrompted,
+    ) { saves, prompted ->
+        saves >= SAVES_BEFORE_REVIEW && !prompted
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
+    /** Surfaces Google's in-app review card once, after the save milestone. */
+    suspend fun maybeAskForReview(activity: Activity) {
+        if (!reviewDue.value) return
+        prefs.setReviewPrompted(true)
+        reviews.launch(activity)
     }
 
     fun toggleSelection(id: Long) {

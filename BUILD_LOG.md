@@ -212,3 +212,25 @@ of UX polish:
 Deferred: a dedicated bottom action bar for multi-select (spec 21 — current
 contextual top-bar covers Move/Delete/Select-all); bulk Share/Export; favourite
 bounce animation. **Not compiled here** (no Android SDK) — verify in Studio.
+
+## 2026-06-18 — In-app review nudge
+
+Founder wanted a "rate us" nudge (and asked about FCM push — deferred by their
+choice for now).
+
+- **Google Play In-App Review** (`com.google.android.play:review:2.0.2`) via
+  `core/review/AppReviewManager` (Task `.await()` through the existing
+  coroutines-play-services dep). Play governs whether the card actually shows;
+  we never pre-screen by sentiment or promise a star count (policy).
+- **Trigger:** after `SAVES_BEFORE_REVIEW` (3) saved documents, once ever
+  (`UserPreferences.reviewPrompted`). `HomeViewModel.reviewDue` +
+  `maybeAskForReview(activity)`; fired from a Home `LaunchedEffect`, suppressed
+  on a visit where the paywall is also due.
+- **Settings:** added **Rate SnapDoc** (opens the Play listing; web fallback)
+  and **Share SnapDoc** (system share sheet) rows — fulfils spec §2.8.
+
+Deferred (founder's call): Firebase Cloud Messaging / push notifications. When
+wanted: add `firebase-messaging`, a `FirebaseMessagingService`, the
+POST_NOTIFICATIONS permission + runtime prompt, a notification channel/icon, and
+an "all" topic subscribe so the Firebase console can broadcast.
+**Not compiled here** (no Android SDK) — verify in Studio.
