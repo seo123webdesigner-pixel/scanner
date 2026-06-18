@@ -1,5 +1,9 @@
 package com.snapdoc.app.feature.settings
 
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -14,6 +18,8 @@ import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Share
+import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material.icons.outlined.TextFields
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
@@ -22,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
@@ -62,6 +69,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val colors = SnapdocTheme.colors
+    val context = LocalContext.current
     val autoOcr by viewModel.autoOcr.collectAsState()
     val autoSuggest by viewModel.autoSuggest.collectAsState()
     val removeAds by viewModel.removeAdsPurchased.collectAsState()
@@ -103,6 +111,17 @@ fun SettingsScreen(
                 onClick = onPaywall,
             )
             SettingsRow(
+                title = "Rate SnapDoc",
+                subtitle = "Enjoying it? A quick review really helps.",
+                icon = Icons.Outlined.StarBorder,
+                onClick = { openPlayStoreListing(context) },
+            )
+            SettingsRow(
+                title = "Share SnapDoc",
+                icon = Icons.Outlined.Share,
+                onClick = { shareApp(context) },
+            )
+            SettingsRow(
                 title = "About SnapDoc",
                 icon = Icons.Outlined.Info,
                 onClick = onAbout,
@@ -117,4 +136,30 @@ fun SettingsScreen(
             Spacer(Modifier.height(24.dp))
         }
     }
+}
+
+/** Opens the app's Play Store listing, falling back to the web URL if Play isn't installed. */
+private fun openPlayStoreListing(context: Context) {
+    val pkg = context.packageName
+    val market = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$pkg"))
+    try {
+        context.startActivity(market)
+    } catch (e: ActivityNotFoundException) {
+        context.startActivity(
+            Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=$pkg")),
+        )
+    }
+}
+
+/** Shares a link to the app via the system share sheet. */
+private fun shareApp(context: Context) {
+    val pkg = context.packageName
+    val message =
+        "Scan documents privately with SnapDoc — your scans stay on your phone. " +
+            "https://play.google.com/store/apps/details?id=$pkg"
+    val intent = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_TEXT, message)
+    }
+    context.startActivity(Intent.createChooser(intent, "Share SnapDoc"))
 }

@@ -212,3 +212,45 @@ of UX polish:
 Deferred: a dedicated bottom action bar for multi-select (spec 21 — current
 contextual top-bar covers Move/Delete/Select-all); bulk Share/Export; favourite
 bounce animation. **Not compiled here** (no Android SDK) — verify in Studio.
+
+## 2026-06-18 — In-app review nudge
+
+Founder wanted a "rate us" nudge (and asked about FCM push — deferred by their
+choice for now).
+
+- **Google Play In-App Review** (`com.google.android.play:review:2.0.2`) via
+  `core/review/AppReviewManager` (Task `.await()` through the existing
+  coroutines-play-services dep). Play governs whether the card actually shows;
+  we never pre-screen by sentiment or promise a star count (policy).
+- **Trigger:** after `SAVES_BEFORE_REVIEW` (3) saved documents, once ever
+  (`UserPreferences.reviewPrompted`). `HomeViewModel.reviewDue` +
+  `maybeAskForReview(activity)`; fired from a Home `LaunchedEffect`, suppressed
+  on a visit where the paywall is also due.
+- **Settings:** added **Rate SnapDoc** (opens the Play listing; web fallback)
+  and **Share SnapDoc** (system share sheet) rows — fulfils spec §2.8.
+
+Deferred (founder's call): Firebase Cloud Messaging / push notifications. When
+wanted: add `firebase-messaging`, a `FirebaseMessagingService`, the
+POST_NOTIFICATIONS permission + runtime prompt, a notification channel/icon, and
+an "all" topic subscribe so the Firebase console can broadcast.
+**Not compiled here** (no Android SDK) — verify in Studio.
+
+## 2026-06-18 — Save flow no longer feels like an upload
+
+Founder feedback: the post-scan "Reading your document…" screen sat waiting on
+the Gemini category call, which read like a cloud upload (against the brand).
+
+- **Save screen shows immediately.** `SaveDocumentViewModel.onScanResult` now
+  flips to the review screen at once with a provisional name; file copy + OCR
+  run on `Dispatchers.IO` (`prepJob`) and the Gemini category suggestion runs
+  in a separate background coroutine. `commit`/`discard` `join` the prep job so
+  the document's files + OCR text are always ready. No blocking wait screen.
+- **Category fills in live.** New `SaveUiState.detecting`; the category row
+  shows "Finding the best category…" with a spinner, then the result (or the
+  user's manual pick — `categoryChosenByUser`/`nameEditedByUser` guard against
+  overwriting edits). Saving before it resolves files under "Other".
+- **Honest wording.** Removed "Reading your document…"; the Save screen line now
+  reads "Your scan stays on your phone — only the text is used to suggest a
+  category." Dropped the unused `SaveUiState.processing`.
+
+**Not compiled here** (no Android SDK) — verify in Studio.
