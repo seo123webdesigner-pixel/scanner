@@ -31,6 +31,9 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -47,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.snapdoc.app.core.ui.components.DestructiveButton
 import com.snapdoc.app.core.ui.components.FolderPickerSheet
 import com.snapdoc.app.core.ui.components.GhostButton
 import com.snapdoc.app.core.ui.components.IconOnlyButton
@@ -75,11 +79,14 @@ fun DocumentDetailScreen(
     var actionsSheet by remember { mutableStateOf(false) }
     var folderPicker by remember { mutableStateOf(false) }
     var renameDialog by remember { mutableStateOf(false) }
+    var deleteConfirm by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
     Scaffold(
         containerColor = colors.bg,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             SnapdocTopAppBar(
                 title = state.document?.filename ?: "Document",
@@ -97,6 +104,7 @@ fun DocumentDetailScreen(
                             icon = if (doc.favorite) Icons.Outlined.Star else Icons.Outlined.StarBorder,
                             contentDescription = "Favorite",
                             onClick = viewModel::toggleFavorite,
+                            tint = if (doc.favorite) colors.accent else null,
                         )
                         IconOnlyButton(
                             icon = Icons.Outlined.Share,
@@ -106,7 +114,7 @@ fun DocumentDetailScreen(
                         IconOnlyButton(
                             icon = Icons.Outlined.Delete,
                             contentDescription = "Delete",
-                            onClick = { viewModel.delete(onDeleted) },
+                            onClick = { deleteConfirm = true },
                         )
                         IconOnlyButton(
                             icon = Icons.Outlined.MoreVert,
@@ -219,11 +227,42 @@ fun DocumentDetailScreen(
             title = "Move to category",
             folders = folders,
             selected = state.document?.category,
-            onSelect = {
-                viewModel.moveTo(it)
+            onSelect = { category ->
+                viewModel.moveTo(category)
                 folderPicker = false
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = "Moved to $category",
+                        duration = SnackbarDuration.Short,
+                    )
+                }
             },
             onDismiss = { folderPicker = false },
+        )
+    }
+
+    if (deleteConfirm) {
+        AlertDialog(
+            onDismissRequest = { deleteConfirm = false },
+            containerColor = colors.surface,
+            title = { Text("Delete document?", style = SnapdocText.headlineMd, color = colors.textPrimary) },
+            text = {
+                Text(
+                    "Delete \"${state.document?.filename.orEmpty()}\"? This can't be undone.",
+                    style = SnapdocText.bodyLg,
+                    color = colors.textSecondary,
+                )
+            },
+            confirmButton = {
+                DestructiveButton(
+                    text = "Delete",
+                    onClick = {
+                        deleteConfirm = false
+                        viewModel.delete(onDeleted)
+                    },
+                )
+            },
+            dismissButton = { GhostButton(text = "Cancel", onClick = { deleteConfirm = false }) },
         )
     }
 

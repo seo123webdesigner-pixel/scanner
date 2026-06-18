@@ -15,6 +15,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,6 +44,7 @@ fun DocumentCard(
     onLongClick: (() -> Unit)? = null,
     thumbnail: (@Composable () -> Unit)? = null,
     selected: Boolean = false,
+    selectionMode: Boolean = false,
 ) {
     val colors = SnapdocTheme.colors
     val shapes = SnapdocTheme.shapes
@@ -93,6 +97,27 @@ fun DocumentCard(
                     )
                     Spacer(Modifier.height(8.dp))
                     CategoryChip(label = categoryName, textColor = categoryChipTextColor)
+                }
+            }
+        }
+        if (selectionMode) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(8.dp)
+                    .size(24.dp)
+                    .clip(CircleShape)
+                    .background(if (selected) colors.primary else colors.surface)
+                    .border(2.dp, if (selected) colors.primary else colors.border, CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (selected) {
+                    Icon(
+                        Icons.Outlined.Check,
+                        contentDescription = null,
+                        tint = colors.onPrimary,
+                        modifier = Modifier.size(16.dp),
+                    )
                 }
             }
         }

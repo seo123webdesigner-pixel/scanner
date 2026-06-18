@@ -80,4 +80,13 @@ class DocumentRepositoryTest {
         assertThat(repo.search("   ")).isEmpty()
         coVerify(exactly = 0) { documents.search(any()) }
     }
+
+    @Test
+    fun `setCategoryMany no-ops on empty and batches otherwise`() = runTest {
+        repo.setCategoryMany(emptyList(), "Bills")
+        coVerify(exactly = 0) { documents.setCategoryForIds(any(), any(), any()) }
+
+        repo.setCategoryMany(listOf(1L, 2L), "Bills")
+        coVerify(exactly = 1) { documents.setCategoryForIds(listOf(1L, 2L), "Bills", any()) }
+    }
 }

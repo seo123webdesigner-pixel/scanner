@@ -62,7 +62,7 @@ fun CategoryDocumentsScreen(
         containerColor = colors.bg,
         topBar = {
             SnapdocTopAppBar(
-                title = viewModel.category,
+                title = if (documents.isEmpty()) viewModel.category else "${viewModel.category} · ${documents.size}",
                 leading = {
                     IconOnlyButton(
                         icon = Icons.Outlined.ArrowBack,

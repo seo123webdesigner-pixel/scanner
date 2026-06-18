@@ -42,6 +42,10 @@ interface DocumentDao {
     @Query("UPDATE documents SET category = :newCategory, updatedAt = :now WHERE category = :oldCategory")
     suspend fun reassignCategory(oldCategory: String, newCategory: String, now: Long)
 
+    /** Move a batch of documents into one category. Used by multi-select. */
+    @Query("UPDATE documents SET category = :category, updatedAt = :now WHERE id IN (:ids)")
+    suspend fun setCategoryForIds(ids: List<Long>, category: String, now: Long)
+
     @Query("UPDATE documents SET filename = :filename, updatedAt = :now WHERE id = :id")
     suspend fun rename(id: Long, filename: String, now: Long)
 

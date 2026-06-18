@@ -179,8 +179,34 @@ re-file documents or rename folders. Root causes + fixes:
 - Tests: `BuiltInCategoryTest` (lenient matching) and `CategoryRepositoryTest`
   (re-tag on rename/delete, built-in guard).
 
-Deferred: bulk "move selected" (needs the multi-select toolbar, still not
-rendered); renaming the 6 built-in folders (they're the AI's sort targets);
+Deferred: renaming the 6 built-in folders (they're the AI's sort targets);
 folder color picker; long-press rename on the Categories tab (rename lives in
 Manage Categories instead). **Not compiled here** — no Android SDK in the
 container; verify the build in Android Studio.
+
+## 2026-06-18 — Bulk move + pre-ship polish
+
+Multi-select already existed on Home (the older handoff was stale) with
+long-press select + bulk delete. Added the missing **bulk move** plus a round
+of UX polish:
+
+- **Bulk move:** selection bar gains **Move** (category picker) + **Select
+  all / Deselect all**; banner hides in selection mode; a "Moved N to X"
+  snackbar offers **Undo** (restores each document's prior category).
+  New: `DocumentDao.setCategoryForIds`, `DocumentRepository.setCategoryMany`,
+  `HomeViewModel.selectAll/moveSelected/undoLastMove`.
+- **Selection clarity:** document cards show a 24dp check badge in selection
+  mode (`DocumentCard.selectionMode`); long-press fires a haptic.
+- **Document Detail safety:** Delete now asks for confirmation (it deleted
+  instantly before — a data-loss risk). Move shows a "Moved to X" snackbar.
+  Favourite star turns `accent` when active (`IconOnlyButton` gained an
+  optional `tint`).
+- **Categories tab:** shows all categories — the 6 built-ins (canonical order)
+  then custom (alphabetical) — each with a live count, including empty ones;
+  added a "Manage categories" button. Drill-down title shows "Name · count".
+- **Home loading** shows a spinner instead of a blank screen.
+- Test: `DocumentRepositoryTest` covers `setCategoryMany` (batch + empty no-op).
+
+Deferred: a dedicated bottom action bar for multi-select (spec 21 — current
+contextual top-bar covers Move/Delete/Select-all); bulk Share/Export; favourite
+bounce animation. **Not compiled here** (no Android SDK) — verify in Studio.
