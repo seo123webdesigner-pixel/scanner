@@ -1,4 +1,4 @@
-# Snapdoc
+# SnapDoc
 
 Privacy-first AI document scanner for Android. Built per `01_product_spec.md`,
 `02_design_system.md`, `03_screen_specs.md`, and `04_hero_mockups.html`.
@@ -100,7 +100,7 @@ The bundle is only signed if `RELEASE_KEYSTORE_PATH` etc. are set in
 
 ## Privacy contract
 
-This is the single most important guarantee Snapdoc makes:
+This is the single most important guarantee SnapDoc makes:
 
 > Document images never leave the device. Only extracted OCR text is ever sent
 > to Google Gemini, and only when the user explicitly invokes AI Summary or
