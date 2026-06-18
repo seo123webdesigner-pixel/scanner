@@ -38,6 +38,14 @@ interface DocumentDao {
     @Query("UPDATE documents SET category = :category, updatedAt = :now WHERE id = :id")
     suspend fun setCategory(id: Long, category: String, now: Long)
 
+    /** Re-tag every document in one folder to another. Used when a folder is renamed or deleted. */
+    @Query("UPDATE documents SET category = :newCategory, updatedAt = :now WHERE category = :oldCategory")
+    suspend fun reassignCategory(oldCategory: String, newCategory: String, now: Long)
+
+    /** Move a batch of documents into one category. Used by multi-select. */
+    @Query("UPDATE documents SET category = :category, updatedAt = :now WHERE id IN (:ids)")
+    suspend fun setCategoryForIds(ids: List<Long>, category: String, now: Long)
+
     @Query("UPDATE documents SET filename = :filename, updatedAt = :now WHERE id = :id")
     suspend fun rename(id: Long, filename: String, now: Long)
 
@@ -120,6 +128,9 @@ interface CategoryDao {
 
     @Query("SELECT * FROM categories ORDER BY sortOrder ASC, name ASC")
     suspend fun all(): List<CategoryEntity>
+
+    @Query("SELECT * FROM categories WHERE id = :id")
+    suspend fun findById(id: Long): CategoryEntity?
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(categories: List<CategoryEntity>)

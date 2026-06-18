@@ -14,11 +14,16 @@ import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.DocumentScanner
 import androidx.compose.material.icons.outlined.FileCopy
+import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -27,8 +32,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.gms.ads.nativead.NativeAd
@@ -37,12 +46,16 @@ import com.snapdoc.app.core.ads.NativeAdCard
 import com.snapdoc.app.core.data.model.Document
 import com.snapdoc.app.core.ui.components.DocumentCard
 import com.snapdoc.app.core.ui.components.EmptyState
+import com.snapdoc.app.core.ui.components.FolderPickerSheet
+import com.snapdoc.app.core.ui.components.GhostButton
 import com.snapdoc.app.core.ui.components.IconOnlyButton
 import com.snapdoc.app.core.ui.components.PrimaryButton
+import com.snapdoc.app.core.ui.components.SnapdocSpinner
 import com.snapdoc.app.core.ui.components.SnapdocTopAppBar
 import com.snapdoc.app.core.ui.theme.SnapdocTheme
 import com.snapdoc.app.core.util.formatMetadata
 import com.snapdoc.app.feature.home.support.categoryColorsFor
+import kotlinx.coroutines.launch
 
 private const val AD_INTERVAL = 7
 
@@ -61,8 +74,13 @@ fun HomeScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val paywallDue by viewModel.paywallDue.collectAsState()
+    val folders by viewModel.folders.collectAsState()
     val colors = SnapdocTheme.colors
     var showDeleteConfirm by remember { mutableStateOf(false) }
+    var showMovePicker by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val haptics = LocalHapticFeedback.current
 
     // In selection mode, system back clears the selection instead of leaving Home.
     BackHandler(enabled = state.selectionMode) { viewModel.clearSelection() }
@@ -89,6 +107,20 @@ fun HomeScreen(
                         )
                     },
                     actions = {
+                        val allSelected = state.documents.isNotEmpty() &&
+                            state.selectedIds.size == state.documents.size
+                        GhostButton(
+                            text = if (allSelected) "Deselect all" else "Select all",
+                            onClick = {
+                                if (allSelected) viewModel.clearSelection()
+                                else viewModel.selectAll(state.documents.map { it.id })
+                            },
+                        )
+                        IconOnlyButton(
+                            icon = Icons.Outlined.Folder,
+                            contentDescription = "Move selected",
+                            onClick = { showMovePicker = true },
+                        )
                         IconOnlyButton(
                             icon = Icons.Outlined.Delete,
                             contentDescription = "Delete selected",
@@ -120,10 +152,16 @@ fun HomeScreen(
                 }
             }
         },
-        bottomBar = { BannerAd() },
+        bottomBar = { if (!state.selectionMode) BannerAd() },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { padding ->
         if (state.loading) {
-            Box(modifier = Modifier.fillMaxSize().padding(padding))
+            Box(
+                modifier = Modifier.fillMaxSize().padding(padding),
+                contentAlignment = Alignment.Center,
+            ) {
+                SnapdocSpinner()
+            }
         } else if (state.documents.isEmpty()) {
             EmptyState(
                 icon = Icons.Outlined.FileCopy,
@@ -184,7 +222,11 @@ fun HomeScreen(
                                     onClick = {
                                         if (state.selectionMode) viewModel.toggleSelection(doc.id) else onOpen(doc.id)
                                     },
-                                    onLongClick = { viewModel.toggleSelection(doc.id) },
+                                    onLongClick = {
+                                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        viewModel.toggleSelection(doc.id)
+                                    },
+                                    selectionMode = state.selectionMode,
                                     selected = doc.id in state.selectedIds,
                                 )
                             }
@@ -216,6 +258,29 @@ fun HomeScreen(
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirm = false }) { Text("Cancel") }
             },
+        )
+    }
+
+    if (showMovePicker) {
+        FolderPickerSheet(
+            title = "Move to category",
+            folders = folders,
+            selected = null,
+            onSelect = { category ->
+                val count = state.selectedIds.size
+                viewModel.moveSelected(category)
+                showMovePicker = false
+                scope.launch {
+                    val noun = if (count == 1) "document" else "documents"
+                    val result = snackbarHostState.showSnackbar(
+                        message = "Moved $count $noun to $category",
+                        actionLabel = "Undo",
+                        duration = SnackbarDuration.Short,
+                    )
+                    if (result == SnackbarResult.ActionPerformed) viewModel.undoLastMove()
+                }
+            },
+            onDismiss = { showMovePicker = false },
         )
     }
 }

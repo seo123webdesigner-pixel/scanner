@@ -145,3 +145,68 @@ deferred per the list at the bottom of this entry.
 - **Password-protected PDF** — licensing blocker, see Phase 7.
 - **Real AdMob IDs + real Gemini API key** for release builds.
 - **Real device verification** of the full scan → OCR → summary → save loop.
+
+## 2026-06-18 — Folder organization pass
+
+Founder feedback: every test scan landed in **Other**, and there was no way to
+re-file documents or rename folders. Root causes + fixes:
+
+- **Folders = categories.** The folder a scan lands in (and its auto name) comes
+  from the Gemini classify call, which needs internet. Offline / blank OCR /
+  API error all fall back to "Other". Documents reference their folder by the
+  category **name string**, not an id — so anything that changes a folder name
+  must re-tag the documents in it.
+- **Smarter auto-matching.** Added `BuiltInCategory.fromResponse()` — a lenient
+  whole-word (singular/plural, case-insensitive) parse so replies like
+  `"**Bills**"` or `"Category: Receipts."` no longer fall through to "Other".
+  `GeminiClient.classify` now uses it. (`fromName` kept exact — it drives the
+  category color map.)
+- **Save review screen (spec 13), finally rendered.** `ScannerFlowScreen` no
+  longer auto-saves silently. A scan now processes (copy → OCR → classify) into
+  scratch state, then shows a Save screen where the user confirms/edits the
+  name + folder before commit. `SaveDocumentViewModel` split into
+  `onScanResult` (process) / `commit` (persist) / `discard` (clean up files).
+- **Move a document between categories (spec 14).** `DocumentDetailScreen` got
+  an overflow (`MoreVert`) → sheet with **Move to category** + **Rename**.
+  `DocumentDetailViewModel.moveTo` / `rename` added. (UI says "category" to
+  match the rest of the app; the founder calls these "folders".)
+- **Rename / delete custom folders (spec 23).** `ManageCategoriesScreen` now
+  has rename (custom only), per-folder document counts, and a delete confirm.
+  `CategoryRepository.rename`/`delete` re-tag the documents inside (rename →
+  new name; delete → "Other"), guard built-ins, and reject blank/duplicate
+  names. New DAO methods: `DocumentDao.reassignCategory`, `CategoryDao.findById`.
+- **Shared `FolderPickerSheet`** component used by both the Save screen and Move.
+- Tests: `BuiltInCategoryTest` (lenient matching) and `CategoryRepositoryTest`
+  (re-tag on rename/delete, built-in guard).
+
+Deferred: renaming the 6 built-in folders (they're the AI's sort targets);
+folder color picker; long-press rename on the Categories tab (rename lives in
+Manage Categories instead). **Not compiled here** — no Android SDK in the
+container; verify the build in Android Studio.
+
+## 2026-06-18 — Bulk move + pre-ship polish
+
+Multi-select already existed on Home (the older handoff was stale) with
+long-press select + bulk delete. Added the missing **bulk move** plus a round
+of UX polish:
+
+- **Bulk move:** selection bar gains **Move** (category picker) + **Select
+  all / Deselect all**; banner hides in selection mode; a "Moved N to X"
+  snackbar offers **Undo** (restores each document's prior category).
+  New: `DocumentDao.setCategoryForIds`, `DocumentRepository.setCategoryMany`,
+  `HomeViewModel.selectAll/moveSelected/undoLastMove`.
+- **Selection clarity:** document cards show a 24dp check badge in selection
+  mode (`DocumentCard.selectionMode`); long-press fires a haptic.
+- **Document Detail safety:** Delete now asks for confirmation (it deleted
+  instantly before — a data-loss risk). Move shows a "Moved to X" snackbar.
+  Favourite star turns `accent` when active (`IconOnlyButton` gained an
+  optional `tint`).
+- **Categories tab:** shows all categories — the 6 built-ins (canonical order)
+  then custom (alphabetical) — each with a live count, including empty ones;
+  added a "Manage categories" button. Drill-down title shows "Name · count".
+- **Home loading** shows a spinner instead of a blank screen.
+- Test: `DocumentRepositoryTest` covers `setCategoryMany` (batch + empty no-op).
+
+Deferred: a dedicated bottom action bar for multi-select (spec 21 — current
+contextual top-bar covers Move/Delete/Select-all); bulk Share/Export; favourite
+bounce animation. **Not compiled here** (no Android SDK) — verify in Studio.

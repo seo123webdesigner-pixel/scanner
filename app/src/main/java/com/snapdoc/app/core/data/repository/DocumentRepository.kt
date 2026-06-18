@@ -28,6 +28,8 @@ interface DocumentRepository {
     ): Long
     suspend fun rename(id: Long, filename: String)
     suspend fun setCategory(id: Long, category: String)
+    suspend fun setCategoryMany(ids: List<Long>, category: String)
+    suspend fun reassignCategory(oldName: String, newName: String)
     suspend fun setFavorite(id: Long, favorite: Boolean)
     suspend fun delete(id: Long)
     suspend fun deleteMany(ids: List<Long>)
@@ -100,6 +102,16 @@ class DocumentRepositoryImpl @Inject constructor(
 
     override suspend fun setCategory(id: Long, category: String) {
         documents.setCategory(id, category, System.currentTimeMillis())
+    }
+
+    override suspend fun setCategoryMany(ids: List<Long>, category: String) {
+        if (ids.isEmpty()) return
+        documents.setCategoryForIds(ids, category, System.currentTimeMillis())
+    }
+
+    override suspend fun reassignCategory(oldName: String, newName: String) {
+        if (oldName == newName) return
+        documents.reassignCategory(oldName, newName, System.currentTimeMillis())
     }
 
     override suspend fun setFavorite(id: Long, favorite: Boolean) {

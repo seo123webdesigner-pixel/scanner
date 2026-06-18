@@ -3,6 +3,7 @@ package com.snapdoc.app.feature.document
 import android.app.Activity
 import android.content.Intent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,11 +21,19 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.Folder
+import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.outlined.StarBorder
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -40,10 +50,13 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.snapdoc.app.core.ui.components.DestructiveButton
+import com.snapdoc.app.core.ui.components.FolderPickerSheet
 import com.snapdoc.app.core.ui.components.GhostButton
 import com.snapdoc.app.core.ui.components.IconOnlyButton
 import com.snapdoc.app.core.ui.components.PrimaryButton
 import com.snapdoc.app.core.ui.components.SnapdocSpinner
+import com.snapdoc.app.core.ui.components.SnapdocTextField
 import com.snapdoc.app.core.ui.components.SnapdocTopAppBar
 import com.snapdoc.app.core.ui.theme.SnapdocText
 import com.snapdoc.app.core.ui.theme.SnapdocTheme
@@ -58,15 +71,22 @@ fun DocumentDetailScreen(
     viewModel: DocumentDetailViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
+    val folders by viewModel.folders.collectAsState()
     val colors = SnapdocTheme.colors
     val context = LocalContext.current
     val activity = context as? Activity
     var summarySheet by remember { mutableStateOf(false) }
+    var actionsSheet by remember { mutableStateOf(false) }
+    var folderPicker by remember { mutableStateOf(false) }
+    var renameDialog by remember { mutableStateOf(false) }
+    var deleteConfirm by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
     Scaffold(
         containerColor = colors.bg,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             SnapdocTopAppBar(
                 title = state.document?.filename ?: "Document",
@@ -84,6 +104,7 @@ fun DocumentDetailScreen(
                             icon = if (doc.favorite) Icons.Outlined.Star else Icons.Outlined.StarBorder,
                             contentDescription = "Favorite",
                             onClick = viewModel::toggleFavorite,
+                            tint = if (doc.favorite) colors.accent else null,
                         )
                         IconOnlyButton(
                             icon = Icons.Outlined.Share,
@@ -93,7 +114,12 @@ fun DocumentDetailScreen(
                         IconOnlyButton(
                             icon = Icons.Outlined.Delete,
                             contentDescription = "Delete",
-                            onClick = { viewModel.delete(onDeleted) },
+                            onClick = { deleteConfirm = true },
+                        )
+                        IconOnlyButton(
+                            icon = Icons.Outlined.MoreVert,
+                            contentDescription = "More",
+                            onClick = { actionsSheet = true },
                         )
                     }
                 },
@@ -168,6 +194,126 @@ fun DocumentDetailScreen(
                 },
             )
         }
+    }
+
+    if (actionsSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { actionsSheet = false },
+            containerColor = colors.surface,
+        ) {
+            Column(modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp)) {
+                DocumentActionRow(
+                    icon = Icons.Outlined.Folder,
+                    label = "Move to category",
+                    onClick = {
+                        actionsSheet = false
+                        folderPicker = true
+                    },
+                )
+                DocumentActionRow(
+                    icon = Icons.Outlined.Edit,
+                    label = "Rename",
+                    onClick = {
+                        actionsSheet = false
+                        renameDialog = true
+                    },
+                )
+            }
+        }
+    }
+
+    if (folderPicker) {
+        FolderPickerSheet(
+            title = "Move to category",
+            folders = folders,
+            selected = state.document?.category,
+            onSelect = { category ->
+                viewModel.moveTo(category)
+                folderPicker = false
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = "Moved to $category",
+                        duration = SnackbarDuration.Short,
+                    )
+                }
+            },
+            onDismiss = { folderPicker = false },
+        )
+    }
+
+    if (deleteConfirm) {
+        AlertDialog(
+            onDismissRequest = { deleteConfirm = false },
+            containerColor = colors.surface,
+            title = { Text("Delete document?", style = SnapdocText.headlineMd, color = colors.textPrimary) },
+            text = {
+                Text(
+                    "Delete \"${state.document?.filename.orEmpty()}\"? This can't be undone.",
+                    style = SnapdocText.bodyLg,
+                    color = colors.textSecondary,
+                )
+            },
+            confirmButton = {
+                DestructiveButton(
+                    text = "Delete",
+                    onClick = {
+                        deleteConfirm = false
+                        viewModel.delete(onDeleted)
+                    },
+                )
+            },
+            dismissButton = { GhostButton(text = "Cancel", onClick = { deleteConfirm = false }) },
+        )
+    }
+
+    if (renameDialog) {
+        var name by remember { mutableStateOf(state.document?.filename.orEmpty()) }
+        AlertDialog(
+            onDismissRequest = { renameDialog = false },
+            containerColor = colors.surface,
+            title = { Text("Rename document", style = SnapdocText.headlineMd, color = colors.textPrimary) },
+            text = {
+                SnapdocTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = "File name",
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            },
+            confirmButton = {
+                PrimaryButton(
+                    text = "Save",
+                    enabled = name.isNotBlank(),
+                    onClick = {
+                        viewModel.rename(name)
+                        renameDialog = false
+                    },
+                )
+            },
+            dismissButton = {
+                GhostButton(text = "Cancel", onClick = { renameDialog = false })
+            },
+        )
+    }
+}
+
+@Composable
+private fun DocumentActionRow(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    onClick: () -> Unit,
+) {
+    val colors = SnapdocTheme.colors
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 24.dp, vertical = 16.dp),
+        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Icon(icon, contentDescription = null, tint = colors.textSecondary, modifier = Modifier.size(20.dp))
+        Text(label, style = SnapdocText.bodyLg, color = colors.textPrimary)
     }
 }
 
