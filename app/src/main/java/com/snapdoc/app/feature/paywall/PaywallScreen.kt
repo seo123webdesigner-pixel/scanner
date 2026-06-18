@@ -56,6 +56,11 @@ class PaywallViewModel @Inject constructor(
     private val billing: BillingManager,
 ) : ViewModel() {
 
+    init {
+        // Re-attempt the product/price load when the paywall opens.
+        billing.refresh()
+    }
+
     val state: StateFlow<PaywallUiState> = combine(
         billing.productDetails,
         billing.removeAdsOwned,
@@ -70,6 +75,7 @@ class PaywallViewModel @Inject constructor(
     fun restore() {
         viewModelScope.launch { billing.restorePurchases() }
     }
+    fun refresh() = billing.refresh()
 }
 
 @Composable
@@ -138,8 +144,10 @@ fun PaywallScreen(
                         color = colors.success,
                     )
                 } else {
+                    val priceReady = state.priceLabel != null
                     PrimaryButton(
-                        text = "Buy — ${state.priceLabel ?: "₹99"}",
+                        text = if (priceReady) "Buy — ${state.priceLabel}" else "Loading price…",
+                        enabled = priceReady,
                         onClick = { (context as? Activity)?.let(viewModel::buy) },
                         modifier = Modifier.fillMaxWidth(),
                     )
@@ -149,6 +157,22 @@ fun PaywallScreen(
                         onClick = viewModel::restore,
                         modifier = Modifier.fillMaxWidth(),
                     )
+                    if (!priceReady) {
+                        Spacer(Modifier.height(16.dp))
+                        Text(
+                            "Couldn't load the price. This works once the app is live on Google Play " +
+                                "(installed from the Store) and the product is active. Tap retry in a moment.",
+                            style = SnapdocText.caption,
+                            color = colors.textTertiary,
+                            textAlign = TextAlign.Center,
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        GhostButton(
+                            text = "Retry",
+                            onClick = viewModel::refresh,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
                 }
             }
         }
