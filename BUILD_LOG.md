@@ -234,3 +234,23 @@ wanted: add `firebase-messaging`, a `FirebaseMessagingService`, the
 POST_NOTIFICATIONS permission + runtime prompt, a notification channel/icon, and
 an "all" topic subscribe so the Firebase console can broadcast.
 **Not compiled here** (no Android SDK) — verify in Studio.
+
+## 2026-06-18 — Save flow no longer feels like an upload
+
+Founder feedback: the post-scan "Reading your document…" screen sat waiting on
+the Gemini category call, which read like a cloud upload (against the brand).
+
+- **Save screen shows immediately.** `SaveDocumentViewModel.onScanResult` now
+  flips to the review screen at once with a provisional name; file copy + OCR
+  run on `Dispatchers.IO` (`prepJob`) and the Gemini category suggestion runs
+  in a separate background coroutine. `commit`/`discard` `join` the prep job so
+  the document's files + OCR text are always ready. No blocking wait screen.
+- **Category fills in live.** New `SaveUiState.detecting`; the category row
+  shows "Finding the best category…" with a spinner, then the result (or the
+  user's manual pick — `categoryChosenByUser`/`nameEditedByUser` guard against
+  overwriting edits). Saving before it resolves files under "Other".
+- **Honest wording.** Removed "Reading your document…"; the Save screen line now
+  reads "Your scan stays on your phone — only the text is used to suggest a
+  category." Dropped the unused `SaveUiState.processing`.
+
+**Not compiled here** (no Android SDK) — verify in Studio.

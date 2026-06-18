@@ -115,15 +115,11 @@ fun ScannerFlowScreen(
                 SnapdocSpinner()
                 Spacer(Modifier.height(16.dp))
                 Text(
-                    when {
-                        state.saved -> "Saving…"
-                        state.processing -> "Reading your document…"
-                        else -> "Opening scanner…"
-                    },
+                    if (state.saved) "Saving…" else "Opening scanner…",
                     style = SnapdocText.bodyLg,
                     color = colors.textSecondary,
                 )
-                if (!state.processing && !state.saved) {
+                if (!state.saved) {
                     Spacer(Modifier.height(16.dp))
                     GhostButton(text = "Cancel", onClick = onCancel)
                 }
@@ -208,16 +204,26 @@ private fun SaveReviewScreen(
                     tint = colors.textSecondary,
                     modifier = Modifier.size(20.dp),
                 )
-                Text(
-                    state.category,
-                    style = SnapdocText.bodyLg,
-                    color = colors.textPrimary,
-                    modifier = Modifier.weight(1f),
-                )
-                if (state.categoryWasAuto) {
-                    Text("Auto", style = SnapdocText.labelSm, color = colors.accent)
+                if (state.detecting && state.category.isBlank()) {
+                    Text(
+                        "Finding the best category…",
+                        style = SnapdocText.bodyLg,
+                        color = colors.textSecondary,
+                        modifier = Modifier.weight(1f),
+                    )
+                    SnapdocSpinner(accent = true)
+                } else {
+                    Text(
+                        state.category.ifBlank { "Other" },
+                        style = SnapdocText.bodyLg,
+                        color = colors.textPrimary,
+                        modifier = Modifier.weight(1f),
+                    )
+                    if (state.categoryWasAuto) {
+                        Text("Auto", style = SnapdocText.labelSm, color = colors.accent)
+                    }
+                    Text("Change", style = SnapdocText.labelMd, color = colors.accent)
                 }
-                Text("Change", style = SnapdocText.labelMd, color = colors.accent)
             }
 
             Spacer(Modifier.height(16.dp))
@@ -229,7 +235,7 @@ private fun SaveReviewScreen(
                     modifier = Modifier.size(14.dp),
                 )
                 Text(
-                    "Saved to your phone. Not uploaded.",
+                    "Your scan stays on your phone — only the text is used to suggest a category.",
                     style = SnapdocText.caption,
                     color = colors.textTertiary,
                 )
