@@ -194,7 +194,9 @@ of UX polish:
   all / Deselect all**; banner hides in selection mode; a "Moved N to X"
   snackbar offers **Undo** (restores each document's prior category).
   New: `DocumentDao.setCategoryForIds`, `DocumentRepository.setCategoryMany`,
-  `HomeViewModel.selectAll/moveSelected/undoLastMove`.
+  `HomeViewModel.selectAll/moveSelected/undoLastMove`. The same multi-select
+  (move/delete/select-all + undo) now also runs inside a category drill-down
+  (`CategoryDocumentsScreen`) so the "Other" backlog can be cleared in place.
 - **Selection clarity:** document cards show a 24dp check badge in selection
   mode (`DocumentCard.selectionMode`); long-press fires a haptic.
 - **Document Detail safety:** Delete now asks for confirmation (it deleted
