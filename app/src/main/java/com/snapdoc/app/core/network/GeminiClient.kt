@@ -86,7 +86,7 @@ class GeminiClient @Inject constructor(
         """.trimIndent()
         runCatching {
             val raw = callWithRetry(prompt)
-            BuiltInCategory.fromName(raw.trim().lineSequence().firstOrNull().orEmpty())
+            BuiltInCategory.fromResponse(raw)
         }.getOrDefault(BuiltInCategory.Other)
     }
 

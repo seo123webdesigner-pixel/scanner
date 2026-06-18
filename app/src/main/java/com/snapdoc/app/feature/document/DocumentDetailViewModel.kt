@@ -8,10 +8,12 @@ import com.snapdoc.app.core.ads.AdsManager
 import com.snapdoc.app.core.data.model.AiSummary
 import com.snapdoc.app.core.data.model.Document
 import com.snapdoc.app.core.data.model.Page
+import com.snapdoc.app.core.data.repository.CategoryRepository
 import com.snapdoc.app.core.data.repository.DocumentRepository
 import com.snapdoc.app.core.data.repository.OcrRepository
 import com.snapdoc.app.core.data.repository.SummaryRepository
 import com.snapdoc.app.core.network.GeminiClient
+import com.snapdoc.app.core.storage.FileStorage
 import com.snapdoc.app.navigation.SnapdocRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -20,6 +22,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -42,11 +45,18 @@ class DocumentDetailViewModel @Inject constructor(
     private val summaries: SummaryRepository,
     private val gemini: GeminiClient,
     private val ads: AdsManager,
+    private val storage: FileStorage,
+    categories: CategoryRepository,
 ) : ViewModel() {
 
     private val documentId: Long = checkNotNull(
         savedStateHandle.get<String>(SnapdocRoute.Document.ARG_ID)?.toLongOrNull(),
     ) { "Missing document id arg" }
+
+    /** Folders this document can be moved into — the 6 built-ins plus any custom. */
+    val folders: StateFlow<List<String>> = categories.observeAll()
+        .map { list -> list.map { it.name } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     private val ephemeral = MutableStateFlow(DocumentDetailUiState())
 
@@ -68,6 +78,18 @@ class DocumentDetailViewModel @Inject constructor(
     fun toggleFavorite() {
         val doc = state.value.document ?: return
         viewModelScope.launch { docs.setFavorite(doc.id, !doc.favorite) }
+    }
+
+    /** Move this document into a different folder. */
+    fun moveTo(category: String) {
+        viewModelScope.launch { docs.setCategory(documentId, category) }
+    }
+
+    /** Rename this document's display name. */
+    fun rename(newName: String) {
+        val safe = storage.sanitizeFilename(newName)
+        if (safe.isBlank()) return
+        viewModelScope.launch { docs.rename(documentId, safe) }
     }
 
     fun delete(onDeleted: () -> Unit) {
