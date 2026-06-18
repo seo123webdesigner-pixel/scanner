@@ -235,7 +235,7 @@ private fun SaveReviewScreen(
                     modifier = Modifier.size(14.dp),
                 )
                 Text(
-                    "Your scan stays on your phone — only the text is used to suggest a category.",
+                    "Your scan stays on your phone.",
                     style = SnapdocText.caption,
                     color = colors.textTertiary,
                 )
