@@ -34,6 +34,9 @@ interface DocumentRepository {
     suspend fun delete(id: Long)
     suspend fun deleteMany(ids: List<Long>)
     suspend fun search(query: String): List<Document>
+
+    /** Returns [base], or "[base] (2)", "(3)"… so two documents never share a name. */
+    suspend fun uniqueFilename(base: String): String
 }
 
 data class NewPage(val imagePath: String, val thumbnailPath: String? = null)
@@ -124,5 +127,12 @@ class DocumentRepositoryImpl @Inject constructor(
     override suspend fun search(query: String): List<Document> {
         if (query.isBlank()) return emptyList()
         return documents.search(query.trim()).map(DocumentEntity::toModel)
+    }
+
+    override suspend fun uniqueFilename(base: String): String {
+        if (documents.countByName(base) == 0) return base
+        var n = 2
+        while (documents.countByName("$base ($n)") > 0) n++
+        return "$base ($n)"
     }
 }
