@@ -32,6 +32,7 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
 import timber.log.Timber
 
 data class SaveUiState(
@@ -100,6 +101,10 @@ class SaveDocumentViewModel @Inject constructor(
         if (_state.value.reviewing) return
 
         val today = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
+        // Unique on-disk base, independent of the (date-based) display name, so
+        // two scans never overwrite each other's files. CRITICAL: a shared name
+        // here caused every same-day scan to clobber the previous one's file.
+        val fileBase = "scan_" + UUID.randomUUID()
         nameEditedByUser = false
         categoryChosenByUser = false
 
@@ -117,14 +122,13 @@ class SaveDocumentViewModel @Inject constructor(
         prepJob = viewModelScope.launch {
             try {
                 withContext(Dispatchers.IO) {
-                    val provisional = storage.sanitizeFilename("Scan - $today")
                     val pdfFile = pdfUri?.let {
-                        val dest = storage.newPdfFile(provisional)
+                        val dest = storage.newPdfFile(fileBase)
                         storage.copyUriIntoStorage(it, dest)
                         dest
                     }
                     val pageFiles = pageUris.mapIndexed { index, uri ->
-                        val dest = storage.newPageImageFile(provisional, index)
+                        val dest = storage.newPageImageFile(fileBase, index)
                         storage.copyUriIntoStorage(uri, dest)
                         dest
                     }
@@ -189,7 +193,9 @@ class SaveDocumentViewModel @Inject constructor(
         viewModelScope.launch {
             prepJob?.join() // ensure files are copied + OCR captured (local, fast)
             val current = _state.value
-            val name = storage.sanitizeFilename(current.suggestedName)
+            // De-duplicate the display name (e.g. two "Bills - 2026-06-18" → the
+            // second becomes "Bills - 2026-06-18 (2)").
+            val name = docs.uniqueFilename(storage.sanitizeFilename(current.suggestedName))
             val category = current.category.ifBlank { BuiltInCategory.Other.displayName }
             try {
                 val docId = docs.create(

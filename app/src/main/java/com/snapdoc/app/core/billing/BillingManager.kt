@@ -68,18 +68,35 @@ class BillingManager @Inject constructor(
         client.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(result: BillingResult) {
                 if (result.responseCode == BillingClient.BillingResponseCode.OK) {
+                    Timber.tag("Billing").i("Billing connected")
                     scope.launch {
                         queryProductDetails()
                         restorePurchases()
                     }
                 } else {
-                    Timber.w("Billing setup failed: %s", result.debugMessage)
+                    Timber.tag("Billing").w(
+                        "Billing setup failed: code=%d (%s)",
+                        result.responseCode, result.debugMessage,
+                    )
                 }
             }
             override fun onBillingServiceDisconnected() {
-                Timber.w("Billing service disconnected")
+                Timber.tag("Billing").w("Billing service disconnected")
             }
         })
+    }
+
+    /** Re-query product details + purchases (paywall open / Retry button). */
+    fun refresh() {
+        scope.launch {
+            if (client.isReady) {
+                queryProductDetails()
+                restorePurchases()
+            } else {
+                Timber.tag("Billing").i("Billing not ready; reconnecting")
+                initialize()
+            }
+        }
     }
 
     private suspend fun queryProductDetails() {
@@ -93,12 +110,24 @@ class BillingManager @Inject constructor(
                 ),
             )
             .build()
-        val result = suspendCancellableCoroutine { cont ->
-            client.queryProductDetailsAsync(params) { _, list ->
-                cont.resume(list)
+        val (result, list) = suspendCancellableCoroutine<Pair<BillingResult, List<ProductDetails>>> { cont ->
+            client.queryProductDetailsAsync(params) { billingResult, products ->
+                cont.resume(billingResult to products)
             }
         }
-        _productDetails.value = result.firstOrNull()
+        if (list.isEmpty()) {
+            Timber.tag("Billing").w(
+                "No product details for '%s' (code=%d %s). The app must be published on a Play track and the product Active.",
+                REMOVE_ADS_PRODUCT_ID, result.responseCode, result.debugMessage,
+            )
+        } else {
+            Timber.tag("Billing").i(
+                "Loaded product '%s' price=%s",
+                REMOVE_ADS_PRODUCT_ID,
+                list.first().oneTimePurchaseOfferDetails?.formattedPrice,
+            )
+        }
+        _productDetails.value = list.firstOrNull()
     }
 
     suspend fun restorePurchases() {
@@ -113,13 +142,20 @@ class BillingManager @Inject constructor(
         val owned = purchases.any { it.products.contains(REMOVE_ADS_PRODUCT_ID) && it.purchaseState == Purchase.PurchaseState.PURCHASED }
         _removeAdsOwned.value = owned
         prefs.setRemoveAdsPurchased(owned)
+        Timber.tag("Billing").i("Restore: %d purchase(s), removeAdsOwned=%b", purchases.size, owned)
         // Acknowledge any unacknowledged purchase.
         purchases.filter { !it.isAcknowledged && it.purchaseState == Purchase.PurchaseState.PURCHASED }
             .forEach { acknowledge(it) }
     }
 
     fun launchPurchase(activity: Activity) {
-        val product = _productDetails.value ?: return
+        val product = _productDetails.value
+        if (product == null) {
+            Timber.tag("Billing").w(
+                "Buy ignored — product not loaded. App must be live on a Play track, product Active, account a license tester.",
+            )
+            return
+        }
         val params = BillingFlowParams.newBuilder()
             .setProductDetailsParamsList(
                 listOf(
@@ -129,7 +165,11 @@ class BillingManager @Inject constructor(
                 ),
             )
             .build()
-        client.launchBillingFlow(activity, params)
+        val result = client.launchBillingFlow(activity, params)
+        Timber.tag("Billing").i(
+            "launchBillingFlow code=%d (%s)",
+            result.responseCode, result.debugMessage,
+        )
     }
 
     private fun acknowledge(purchase: Purchase) {
@@ -144,6 +184,10 @@ class BillingManager @Inject constructor(
     }
 
     override fun onPurchasesUpdated(result: BillingResult, purchases: MutableList<Purchase>?) {
+        Timber.tag("Billing").i(
+            "onPurchasesUpdated code=%d (%s), purchases=%d",
+            result.responseCode, result.debugMessage, purchases?.size ?: 0,
+        )
         if (result.responseCode != BillingClient.BillingResponseCode.OK || purchases == null) return
         purchases.filter { it.products.contains(REMOVE_ADS_PRODUCT_ID) }
             .forEach { purchase ->

@@ -254,3 +254,26 @@ the Gemini category call, which read like a cloud upload (against the brand).
   category." Dropped the unused `SaveUiState.processing`.
 
 **Not compiled here** (no Android SDK) — verify in Studio.
+
+## 2026-06-19 — CRITICAL: same-day scans overwrote each other (data loss)
+
+Founder hit it in the production-review build: take several scans in a day, open
+one, and they all show the latest — the rest are gone.
+
+- **Root cause:** the on-disk file name was the date-based display name
+  (`"Scan - $today"`), identical for every same-day scan, so each scan's PDF +
+  page images **overwrote the previous one's files** at the same path. All the
+  (distinct) DB rows then pointed at that single file → opening any showed the
+  newest. `discard()` could also delete a still-referenced shared file.
+- **Fix:** `SaveDocumentViewModel.onScanResult` now writes to a unique base
+  (`"scan_" + UUID`) decoupled from the display name, so files never collide.
+- **Display-name de-dup (also requested):** `DocumentRepository.uniqueFilename`
+  (+ `DocumentDao.countByName`) appends " (2)", " (3)"… so two same-day same-
+  category scans read e.g. "Bills - 2026-06-18" and "Bills - 2026-06-18 (2)".
+  Applied in `commit()`.
+- Tests: `uniqueFilename` base + collision cases.
+
+No schema change (queries only). Already-corrupted docs from the buggy build
+can't be recovered (files were overwritten on disk); the fix prevents it going
+forward. **Ship this before promoting the production release.**
+**Not compiled here** (no Android SDK) — verify in Studio.

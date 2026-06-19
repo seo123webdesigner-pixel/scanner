@@ -58,6 +58,9 @@ interface DocumentDao {
     @Query("SELECT COUNT(*) FROM documents WHERE category = :category")
     suspend fun countInCategory(category: String): Int
 
+    @Query("SELECT COUNT(*) FROM documents WHERE filename = :name")
+    suspend fun countByName(name: String): Int
+
     /**
      * Full-text search across filename + OCR content. Returns documents
      * whose filename matches OR whose OCR text contains [query].
