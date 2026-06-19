@@ -68,7 +68,8 @@ class SaveDocumentViewModel @Inject constructor(
         _state.update { it.copy(processing = true) }
         viewModelScope.launch {
             try {
-                val today = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
+                val dateFmt = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+                val today = dateFmt.format(Date())
                 val provisional = storage.sanitizeFilename("Scan - $today")
                 _state.update { it.copy(suggestedName = provisional) }
 
@@ -98,15 +99,19 @@ class SaveDocumentViewModel @Inject constructor(
                     }
                 } else ""
 
-                // Auto-categorize via Gemini if we have text. Falls through to "Other".
+                // Auto-categorize via Gemini if we have text. Falls through to the
+                // default category (Scans).
                 val category: String = if (ocrText.isNotBlank()) {
                     runCatching { gemini.classify(ocrText).displayName }
                         .getOrDefault(BuiltInCategory.Other.displayName)
                 } else BuiltInCategory.Other.displayName
 
-                val finalName = storage.sanitizeFilename(
-                    "${category} - $today - ${ocrText.take(4).hashCode().toString(16).take(4)}",
-                )
+                // Name as "Scan - <date> - <n>", where n is this scan's position
+                // among today's scans.
+                val scansToday = docs.observeAll().first().count {
+                    dateFmt.format(Date(it.createdAt)) == today
+                }
+                val finalName = storage.sanitizeFilename("Scan - $today - ${scansToday + 1}")
 
                 val docId = docs.create(
                     filename = finalName,
