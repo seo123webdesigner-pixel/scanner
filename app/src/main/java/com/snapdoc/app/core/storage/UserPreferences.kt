@@ -33,6 +33,7 @@ class UserPreferences @Inject constructor(
         val interstitialShownCount = intPreferencesKey("interstitial_shown_count")
         val paywallPrompted = booleanPreferencesKey("paywall_prompted")
         val removeAdsPurchased = booleanPreferencesKey("remove_ads_purchased")
+        val reviewPrompted = booleanPreferencesKey("review_prompted")
     }
 
     val onboardingComplete: Flow<Boolean> = context.dataStore.data.map { it[Keys.onboardingComplete] ?: false }
@@ -45,6 +46,7 @@ class UserPreferences @Inject constructor(
     val interstitialShownCount: Flow<Int> = context.dataStore.data.map { it[Keys.interstitialShownCount] ?: 0 }
     val paywallPrompted: Flow<Boolean> = context.dataStore.data.map { it[Keys.paywallPrompted] ?: false }
     val removeAdsPurchased: Flow<Boolean> = context.dataStore.data.map { it[Keys.removeAdsPurchased] ?: false }
+    val reviewPrompted: Flow<Boolean> = context.dataStore.data.map { it[Keys.reviewPrompted] ?: false }
 
     suspend fun markOnboardingComplete() = context.dataStore.edit { it[Keys.onboardingComplete] = true }
     suspend fun setAutoOcr(value: Boolean) = context.dataStore.edit { it[Keys.autoOcr] = value }
@@ -65,5 +67,8 @@ class UserPreferences @Inject constructor(
     }
     suspend fun setRemoveAdsPurchased(value: Boolean) = context.dataStore.edit {
         it[Keys.removeAdsPurchased] = value
+    }
+    suspend fun setReviewPrompted(value: Boolean) = context.dataStore.edit {
+        it[Keys.reviewPrompted] = value
     }
 }

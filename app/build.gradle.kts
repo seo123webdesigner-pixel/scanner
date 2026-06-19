@@ -197,6 +197,9 @@ dependencies {
     implementation(libs.play.services.ads)
     implementation(libs.play.billing.ktx)
 
+    // In-app review (Play)
+    implementation(libs.play.review)
+
     // Firebase (still listed even when google-services.json is absent;
     // gates around init protect runtime).
     implementation(platform(libs.firebase.bom))

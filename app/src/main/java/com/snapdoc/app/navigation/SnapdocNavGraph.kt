@@ -95,9 +95,12 @@ fun SnapdocNavGraph() {
             }
 
             composable(SnapdocRoute.Categories.path) {
-                CategoriesScreen(onOpenCategory = { category ->
-                    navController.navigate(SnapdocRoute.CategoryDocuments.build(category))
-                })
+                CategoriesScreen(
+                    onOpenCategory = { category ->
+                        navController.navigate(SnapdocRoute.CategoryDocuments.build(category))
+                    },
+                    onManageCategories = { navController.navigate(SnapdocRoute.ManageCategories.path) },
+                )
             }
 
             composable(

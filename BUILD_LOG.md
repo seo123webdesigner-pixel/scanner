@@ -145,3 +145,135 @@ deferred per the list at the bottom of this entry.
 - **Password-protected PDF** — licensing blocker, see Phase 7.
 - **Real AdMob IDs + real Gemini API key** for release builds.
 - **Real device verification** of the full scan → OCR → summary → save loop.
+
+## 2026-06-18 — Folder organization pass
+
+Founder feedback: every test scan landed in **Other**, and there was no way to
+re-file documents or rename folders. Root causes + fixes:
+
+- **Folders = categories.** The folder a scan lands in (and its auto name) comes
+  from the Gemini classify call, which needs internet. Offline / blank OCR /
+  API error all fall back to "Other". Documents reference their folder by the
+  category **name string**, not an id — so anything that changes a folder name
+  must re-tag the documents in it.
+- **Smarter auto-matching.** Added `BuiltInCategory.fromResponse()` — a lenient
+  whole-word (singular/plural, case-insensitive) parse so replies like
+  `"**Bills**"` or `"Category: Receipts."` no longer fall through to "Other".
+  `GeminiClient.classify` now uses it. (`fromName` kept exact — it drives the
+  category color map.)
+- **Save review screen (spec 13), finally rendered.** `ScannerFlowScreen` no
+  longer auto-saves silently. A scan now processes (copy → OCR → classify) into
+  scratch state, then shows a Save screen where the user confirms/edits the
+  name + folder before commit. `SaveDocumentViewModel` split into
+  `onScanResult` (process) / `commit` (persist) / `discard` (clean up files).
+- **Move a document between categories (spec 14).** `DocumentDetailScreen` got
+  an overflow (`MoreVert`) → sheet with **Move to category** + **Rename**.
+  `DocumentDetailViewModel.moveTo` / `rename` added. (UI says "category" to
+  match the rest of the app; the founder calls these "folders".)
+- **Rename / delete custom folders (spec 23).** `ManageCategoriesScreen` now
+  has rename (custom only), per-folder document counts, and a delete confirm.
+  `CategoryRepository.rename`/`delete` re-tag the documents inside (rename →
+  new name; delete → "Other"), guard built-ins, and reject blank/duplicate
+  names. New DAO methods: `DocumentDao.reassignCategory`, `CategoryDao.findById`.
+- **Shared `FolderPickerSheet`** component used by both the Save screen and Move.
+- Tests: `BuiltInCategoryTest` (lenient matching) and `CategoryRepositoryTest`
+  (re-tag on rename/delete, built-in guard).
+
+Deferred: renaming the 6 built-in folders (they're the AI's sort targets);
+folder color picker; long-press rename on the Categories tab (rename lives in
+Manage Categories instead). **Not compiled here** — no Android SDK in the
+container; verify the build in Android Studio.
+
+## 2026-06-18 — Bulk move + pre-ship polish
+
+Multi-select already existed on Home (the older handoff was stale) with
+long-press select + bulk delete. Added the missing **bulk move** plus a round
+of UX polish:
+
+- **Bulk move:** selection bar gains **Move** (category picker) + **Select
+  all / Deselect all**; banner hides in selection mode; a "Moved N to X"
+  snackbar offers **Undo** (restores each document's prior category).
+  New: `DocumentDao.setCategoryForIds`, `DocumentRepository.setCategoryMany`,
+  `HomeViewModel.selectAll/moveSelected/undoLastMove`. The same multi-select
+  (move/delete/select-all + undo) now also runs inside a category drill-down
+  (`CategoryDocumentsScreen`) so the "Other" backlog can be cleared in place.
+- **Selection clarity:** document cards show a 24dp check badge in selection
+  mode (`DocumentCard.selectionMode`); long-press fires a haptic.
+- **Document Detail safety:** Delete now asks for confirmation (it deleted
+  instantly before — a data-loss risk). Move shows a "Moved to X" snackbar.
+  Favourite star turns `accent` when active (`IconOnlyButton` gained an
+  optional `tint`).
+- **Categories tab:** shows all categories — the 6 built-ins (canonical order)
+  then custom (alphabetical) — each with a live count, including empty ones;
+  added a "Manage categories" button. Drill-down title shows "Name · count".
+- **Home loading** shows a spinner instead of a blank screen.
+- Test: `DocumentRepositoryTest` covers `setCategoryMany` (batch + empty no-op).
+
+Deferred: a dedicated bottom action bar for multi-select (spec 21 — current
+contextual top-bar covers Move/Delete/Select-all); bulk Share/Export; favourite
+bounce animation. **Not compiled here** (no Android SDK) — verify in Studio.
+
+## 2026-06-18 — In-app review nudge
+
+Founder wanted a "rate us" nudge (and asked about FCM push — deferred by their
+choice for now).
+
+- **Google Play In-App Review** (`com.google.android.play:review:2.0.2`) via
+  `core/review/AppReviewManager` (Task `.await()` through the existing
+  coroutines-play-services dep). Play governs whether the card actually shows;
+  we never pre-screen by sentiment or promise a star count (policy).
+- **Trigger:** after `SAVES_BEFORE_REVIEW` (3) saved documents, once ever
+  (`UserPreferences.reviewPrompted`). `HomeViewModel.reviewDue` +
+  `maybeAskForReview(activity)`; fired from a Home `LaunchedEffect`, suppressed
+  on a visit where the paywall is also due.
+- **Settings:** added **Rate SnapDoc** (opens the Play listing; web fallback)
+  and **Share SnapDoc** (system share sheet) rows — fulfils spec §2.8.
+
+Deferred (founder's call): Firebase Cloud Messaging / push notifications. When
+wanted: add `firebase-messaging`, a `FirebaseMessagingService`, the
+POST_NOTIFICATIONS permission + runtime prompt, a notification channel/icon, and
+an "all" topic subscribe so the Firebase console can broadcast.
+**Not compiled here** (no Android SDK) — verify in Studio.
+
+## 2026-06-18 — Save flow no longer feels like an upload
+
+Founder feedback: the post-scan "Reading your document…" screen sat waiting on
+the Gemini category call, which read like a cloud upload (against the brand).
+
+- **Save screen shows immediately.** `SaveDocumentViewModel.onScanResult` now
+  flips to the review screen at once with a provisional name; file copy + OCR
+  run on `Dispatchers.IO` (`prepJob`) and the Gemini category suggestion runs
+  in a separate background coroutine. `commit`/`discard` `join` the prep job so
+  the document's files + OCR text are always ready. No blocking wait screen.
+- **Category fills in live.** New `SaveUiState.detecting`; the category row
+  shows "Finding the best category…" with a spinner, then the result (or the
+  user's manual pick — `categoryChosenByUser`/`nameEditedByUser` guard against
+  overwriting edits). Saving before it resolves files under "Other".
+- **Honest wording.** Removed "Reading your document…"; the Save screen line now
+  reads "Your scan stays on your phone — only the text is used to suggest a
+  category." Dropped the unused `SaveUiState.processing`.
+
+**Not compiled here** (no Android SDK) — verify in Studio.
+
+## 2026-06-19 — CRITICAL: same-day scans overwrote each other (data loss)
+
+Founder hit it in the production-review build: take several scans in a day, open
+one, and they all show the latest — the rest are gone.
+
+- **Root cause:** the on-disk file name was the date-based display name
+  (`"Scan - $today"`), identical for every same-day scan, so each scan's PDF +
+  page images **overwrote the previous one's files** at the same path. All the
+  (distinct) DB rows then pointed at that single file → opening any showed the
+  newest. `discard()` could also delete a still-referenced shared file.
+- **Fix:** `SaveDocumentViewModel.onScanResult` now writes to a unique base
+  (`"scan_" + UUID`) decoupled from the display name, so files never collide.
+- **Display-name de-dup (also requested):** `DocumentRepository.uniqueFilename`
+  (+ `DocumentDao.countByName`) appends " (2)", " (3)"… so two same-day same-
+  category scans read e.g. "Bills - 2026-06-18" and "Bills - 2026-06-18 (2)".
+  Applied in `commit()`.
+- Tests: `uniqueFilename` base + collision cases.
+
+No schema change (queries only). Already-corrupted docs from the buggy build
+can't be recovered (files were overwritten on disk); the fix prevents it going
+forward. **Ship this before promoting the production release.**
+**Not compiled here** (no Android SDK) — verify in Studio.

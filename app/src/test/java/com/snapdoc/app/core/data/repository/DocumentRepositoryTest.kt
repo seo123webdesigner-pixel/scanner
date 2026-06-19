@@ -80,4 +80,28 @@ class DocumentRepositoryTest {
         assertThat(repo.search("   ")).isEmpty()
         coVerify(exactly = 0) { documents.search(any()) }
     }
+
+    @Test
+    fun `setCategoryMany no-ops on empty and batches otherwise`() = runTest {
+        repo.setCategoryMany(emptyList(), "Bills")
+        coVerify(exactly = 0) { documents.setCategoryForIds(any(), any(), any()) }
+
+        repo.setCategoryMany(listOf(1L, 2L), "Bills")
+        coVerify(exactly = 1) { documents.setCategoryForIds(listOf(1L, 2L), "Bills", any()) }
+    }
+
+    @Test
+    fun `uniqueFilename returns the base name when it is free`() = runTest {
+        coEvery { documents.countByName("Notes - 2026-06-18") } returns 0
+        assertThat(repo.uniqueFilename("Notes - 2026-06-18")).isEqualTo("Notes - 2026-06-18")
+    }
+
+    @Test
+    fun `uniqueFilename appends the next free counter on collision`() = runTest {
+        coEvery { documents.countByName("Bills - 2026-06-18") } returns 1
+        coEvery { documents.countByName("Bills - 2026-06-18 (2)") } returns 1
+        coEvery { documents.countByName("Bills - 2026-06-18 (3)") } returns 0
+
+        assertThat(repo.uniqueFilename("Bills - 2026-06-18")).isEqualTo("Bills - 2026-06-18 (3)")
+    }
 }

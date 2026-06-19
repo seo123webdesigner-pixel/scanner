@@ -166,10 +166,11 @@ fun IconOnlyButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    tint: Color? = null,
 ) {
     val colors = SnapdocTheme.colors
     val shapes = SnapdocTheme.shapes
-    val tint = if (enabled) colors.textPrimary else colors.textDisabled
+    val resolvedTint = tint ?: if (enabled) colors.textPrimary else colors.textDisabled
     Box(
         modifier = modifier
             .size(48.dp)
@@ -177,6 +178,6 @@ fun IconOnlyButton(
             .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Icon(icon, contentDescription = contentDescription, modifier = Modifier.size(24.dp), tint = tint)
+        Icon(icon, contentDescription = contentDescription, modifier = Modifier.size(24.dp), tint = resolvedTint)
     }
 }
