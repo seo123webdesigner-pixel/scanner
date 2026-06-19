@@ -35,7 +35,9 @@ enum class BuiltInCategory(val displayName: String) {
     Receipts("Receipts"),
     Notes("Notes"),
     Contracts("Contracts"),
-    Other("Other");
+
+    /** Catch-all / default bucket. Shown to users as "Scans". */
+    Other("Scans");
 
     companion object {
         fun fromName(name: String?): BuiltInCategory =

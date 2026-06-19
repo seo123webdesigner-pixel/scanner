@@ -66,12 +66,12 @@ private val pages = listOf(
     OnboardingPage(
         Icons.Outlined.Lock,
         "Your scans stay on your phone.",
-        "We don't have a server. Your documents never leave your device unless you ask AI to summarize them.",
+        "We don't have a server. Your documents never leave your device.",
     ),
     OnboardingPage(
         Icons.Outlined.AutoAwesome,
         "Understand any document in seconds.",
-        "AI summaries pull out the key points from bills, contracts, and notes. Only the typed-out text is sent — never the image.",
+        "AI summaries pull out the key points from bills, contracts, and notes.",
     ),
     OnboardingPage(
         Icons.Outlined.Search,

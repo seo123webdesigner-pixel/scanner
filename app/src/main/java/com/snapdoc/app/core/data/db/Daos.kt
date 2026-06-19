@@ -157,7 +157,7 @@ interface CategoryDao {
                     CategoryEntity(name = "Receipts", isBuiltIn = true, sortOrder = 2),
                     CategoryEntity(name = "Notes", isBuiltIn = true, sortOrder = 3),
                     CategoryEntity(name = "Contracts", isBuiltIn = true, sortOrder = 4),
-                    CategoryEntity(name = "Other", isBuiltIn = true, sortOrder = 5),
+                    CategoryEntity(name = "Scans", isBuiltIn = true, sortOrder = 5),
                 ),
             )
         }
