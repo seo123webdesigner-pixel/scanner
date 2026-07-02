@@ -31,14 +31,19 @@ Modern apps use **Play App Signing**: Google holds the real app-signing key; you
 
 ## 3. Secrets in local.properties (required for a real release)
 ```
-GEMINI_API_KEY=AIza...                 # else AI summaries fail
 ADMOB_APP_ID=ca-app-pub-XXXX~YYYY      # real IDs; debug uses Google test IDs
 ADMOB_BANNER_ID=ca-app-pub-XXXX/...
 ADMOB_INTERSTITIAL_ID=ca-app-pub-XXXX/...
 ADMOB_REWARDED_ID=ca-app-pub-XXXX/...
 ADMOB_NATIVE_ID=ca-app-pub-XXXX/...
 ```
-Also confirm `app/google-services.json` is present (Firebase plugins are active; the build fails without it).
+No Gemini key goes here — Gemini access is via Firebase AI Logic, key held
+server-side. Confirm `app/google-services.json` is present (Firebase plugins
+are active; the build fails without it), and before the first release build:
+- [ ] Firebase console → **Build → AI Logic** → Gemini Developer API is enabled.
+- [ ] Firebase console → **Build → App Check** → app registered with the
+      **release** keystore's SHA-256, Play Integrity provider linked to the
+      Play Console project, enforcement turned on for AI Logic.
 
 ## 4. Build the release
 ```bash

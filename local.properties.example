@@ -5,8 +5,10 @@
 sdk.dir=/Users/you/Library/Android/sdk
 
 # --- Gemini ---
-# Get from https://aistudio.google.com/apikey
-GEMINI_API_KEY=
+# No key needed here. AI calls go through Firebase AI Logic (see
+# GeminiClient.kt) — the key lives server-side in the Firebase project, not
+# in this file or the compiled app. Set up AI Logic + App Check once from
+# the Firebase console; see README.md "First-time setup".
 
 # --- AdMob ---
 # When left blank, debug builds use Google's official AdMob test IDs.
