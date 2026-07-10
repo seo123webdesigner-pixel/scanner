@@ -11,8 +11,10 @@ Privacy-first AI document scanner for Android. Built per `01_product_spec.md`,
   crop, multi-page review, and filter selection).
 - **OCR:** Google ML Kit Text Recognition v2 (Latin + Devanagari shipping; other
   Indic scripts wire in as additional recognizer modules).
-- **AI:** Google Gemini Flash via REST. **Only extracted OCR text is ever sent
-  to Gemini — never the original image.** See `core/network/GeminiClient.kt`.
+- **AI:** Google Gemini Flash via Firebase AI Logic (App Check/Play Integrity
+  gated — no API key is embedded in the app). **Only extracted OCR text is
+  ever sent to Gemini — never the original image.** See
+  `core/network/GeminiClient.kt`.
 - **Ads:** Google AdMob — banner, native, interstitial (3rd-save / 60s cooldown),
   rewarded (gate before AI summary in free tier). Debug builds use Google's
   official test IDs; release builds read real IDs from `local.properties`.
@@ -30,7 +32,7 @@ app/
 │   ├── ui/theme/                  # Color, Type, Shape, Spacing, Motion tokens
 │   ├── ui/components/             # Buttons, Cards, TextFields, States, etc.
 │   ├── data/                      # Entities, DAOs, repositories, mappers
-│   ├── network/                   # Gemini client (REST + redacting logger)
+│   ├── network/                   # Gemini client (Firebase AI Logic)
 │   ├── ml/                        # ML Kit OCR wrapper
 │   ├── ads/                       # AdMob manager + Banner composable
 │   ├── billing/                   # Play Billing wrapper
@@ -57,12 +59,14 @@ app/
 1. Install **JDK 17** and **Android Studio** (Hedgehog or later).
 2. Open the project. Let Gradle sync and download the SDK as needed.
 3. Copy `local.properties.example` → `local.properties` and fill in:
-    - `GEMINI_API_KEY` — get from <https://aistudio.google.com/apikey>
     - `ADMOB_*_ID` — optional; debug always uses Google's test IDs
     - `RELEASE_KEYSTORE_*` — only needed when building a signed release
-4. **Firebase (optional for first run):** Drop `google-services.json` into
-   `app/`, then uncomment the two `google-services` / `firebase-crashlytics`
-   plugin lines at the top of `app/build.gradle.kts`.
+4. **Firebase (required — AI Summary/categorization won't work without it):**
+   Drop `google-services.json` into `app/`. Then, one-time in the Firebase
+   console: enable **AI Logic** (Build → AI Logic → Get started → Gemini
+   Developer API) and **App Check** with the **Play Integrity** provider
+   (Build → App Check → register the app with its debug/release SHA-256).
+   No key ever goes in this repo or the app — Firebase holds it.
 5. Run on an emulator or device (API 26+).
 
 ## Building a release

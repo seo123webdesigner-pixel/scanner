@@ -1,6 +1,9 @@
 package com.snapdoc.app.core.network
 
-import com.snapdoc.app.BuildConfig
+import com.google.firebase.Firebase
+import com.google.firebase.ai.ai
+import com.google.firebase.ai.type.GenerativeBackend
+import com.google.firebase.ai.type.generationConfig
 import com.snapdoc.app.core.data.model.AiSummary
 import com.snapdoc.app.core.data.model.BuiltInCategory
 import com.snapdoc.app.di.IoDispatcher
@@ -9,16 +12,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.add
-import kotlinx.serialization.json.buildJsonArray
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -33,18 +26,29 @@ import java.io.IOException
  *     Bitmaps, Uris, or filenames. Adding one breaks the privacy contract
  *     printed on every onboarding screen and in the Play Store listing.
  *   - Do NOT log request or response bodies — they contain user document
- *     text. The [redactingLogger] truncates everything to URL + status.
+ *     text. Only call outcome (ok/failed) is logged, never prompt or
+ *     response content.
+ *
+ * Calls go through Firebase AI Logic rather than a raw REST call with an
+ * embedded key: the Gemini API key lives server-side in the Firebase
+ * project, never inside the compiled app, and App Check (Play Integrity)
+ * attests that requests come from a genuine, unmodified build of this app
+ * before Firebase forwards them to Gemini.
  */
 @Singleton
 class GeminiClient @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) {
 
-    private val client = OkHttpClient.Builder()
-        .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
-        .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
-        .addInterceptor(redactingLogger)
-        .build()
+    // Summaries/classification don't need reasoning; disabling thinking
+    // keeps gemini-2.5-flash fast and cheap (thinkingBudget 0).
+    private val model = Firebase.ai(backend = GenerativeBackend.googleAI())
+        .generativeModel(
+            modelName = MODEL_NAME,
+            generationConfig = generationConfig {
+                thinkingConfig = thinkingConfig { thinkingBudget = 0 }
+            },
+        )
 
     private val json = Json { ignoreUnknownKeys = true; explicitNulls = false }
 
@@ -91,72 +95,26 @@ class GeminiClient @Inject constructor(
     }
 
     private suspend fun callWithRetry(prompt: String): String {
-        val key = BuildConfig.GEMINI_API_KEY
-        require(key.isNotBlank()) { "GEMINI_API_KEY missing. Add it to local.properties." }
-        val url = "$ENDPOINT?key=$key"
-        val body = buildJsonObject {
-            put(
-                "contents",
-                buildJsonArray {
-                    add(
-                        buildJsonObject {
-                            put("role", JsonPrimitive("user"))
-                            put(
-                                "parts",
-                                buildJsonArray {
-                                    add(buildJsonObject { put("text", JsonPrimitive(prompt)) })
-                                },
-                            )
-                        },
-                    )
-                },
-            )
-            // Summaries/classification don't need reasoning; disabling thinking
-            // keeps gemini-2.5-flash fast and cheap (thinkingBudget 0).
-            put(
-                "generationConfig",
-                buildJsonObject {
-                    put(
-                        "thinkingConfig",
-                        buildJsonObject { put("thinkingBudget", JsonPrimitive(0)) },
-                    )
-                },
-            )
-        }.toString().toRequestBody(JSON_MEDIA)
-        val request = Request.Builder().url(url).post(body).build()
-
         var attempt = 0
         var lastError: Throwable? = null
         while (attempt < MAX_ATTEMPTS) {
             try {
-                client.newCall(request).execute().use { response ->
-                    if (!response.isSuccessful) {
-                        error("HTTP ${response.code}")
-                    }
-                    val responseJson = response.body?.string().orEmpty()
-                    val root = Json.parseToJsonElement(responseJson) as? JsonObject
-                        ?: error("Gemini response was not a JSON object")
-                    return extractTextFromGeminiResponse(root)
-                        ?: error("Gemini response missing candidates[0].content.parts[0].text")
-                }
-            } catch (t: IOException) {
-                lastError = t
+                val text = model.generateContent(prompt).text
+                    ?: error("Gemini response had no text")
+                Timber.tag("Gemini").i("generateContent ok (attempt %d)", attempt + 1)
+                return text
             } catch (t: Throwable) {
                 lastError = t
+                Timber.tag("Gemini").w(
+                    "generateContent attempt %d failed: %s",
+                    attempt + 1,
+                    t.javaClass.simpleName,
+                )
             }
             attempt++
             if (attempt < MAX_ATTEMPTS) delay(BACKOFFS_MS[attempt - 1])
         }
         throw IOException("Gemini failed after $MAX_ATTEMPTS attempts", lastError)
-    }
-
-    private fun extractTextFromGeminiResponse(root: JsonObject): String? {
-        val candidates = root["candidates"] as? kotlinx.serialization.json.JsonArray ?: return null
-        val first = candidates.firstOrNull() as? JsonObject ?: return null
-        val content = first["content"] as? JsonObject ?: return null
-        val parts = content["parts"] as? kotlinx.serialization.json.JsonArray ?: return null
-        val text = (parts.firstOrNull() as? JsonObject)?.get("text") as? JsonPrimitive ?: return null
-        return text.content
     }
 
     private fun extractFirstJsonObject(raw: String): String? {
@@ -172,20 +130,8 @@ class GeminiClient @Inject constructor(
     )
 
     companion object {
-        private const val ENDPOINT =
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
-        private val JSON_MEDIA = "application/json".toMediaType()
+        private const val MODEL_NAME = "gemini-2.5-flash"
         private const val MAX_ATTEMPTS = 3
         private val BACKOFFS_MS = longArrayOf(1_000, 2_000, 4_000)
     }
-}
-
-/** Logs URL + status only. Bodies contain user OCR text and must NEVER be logged. */
-private val redactingLogger = okhttp3.Interceptor { chain ->
-    val request = chain.request()
-    val started = System.nanoTime()
-    val response = chain.proceed(request)
-    val tookMs = (System.nanoTime() - started) / 1_000_000
-    Timber.tag("Gemini").i("%s → %d (%dms)", request.url, response.code, tookMs)
-    response
 }

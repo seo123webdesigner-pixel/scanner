@@ -69,7 +69,6 @@ android {
             isMinifyEnabled = false
 
             // Debug always uses Google's official test IDs.
-            buildConfigField("String", "GEMINI_API_KEY", "\"${localProp("GEMINI_API_KEY")}\"")
             buildConfigField("String", "ADMOB_BANNER_ID", "\"${AdMobTestIds.BANNER}\"")
             buildConfigField("String", "ADMOB_NATIVE_ID", "\"${AdMobTestIds.NATIVE}\"")
             buildConfigField("String", "ADMOB_INTERSTITIAL_ID", "\"${AdMobTestIds.INTERSTITIAL}\"")
@@ -96,7 +95,6 @@ android {
             val usingTestAds = listOf(bannerId, nativeId, interstitialId, rewardedId)
                 .any { it.startsWith("ca-app-pub-3940256099942544") }
 
-            buildConfigField("String", "GEMINI_API_KEY", "\"${localProp("GEMINI_API_KEY")}\"")
             buildConfigField("String", "ADMOB_BANNER_ID", "\"$bannerId\"")
             buildConfigField("String", "ADMOB_NATIVE_ID", "\"$nativeId\"")
             buildConfigField("String", "ADMOB_INTERSTITIAL_ID", "\"$interstitialId\"")
@@ -179,8 +177,6 @@ dependencies {
     implementation(libs.coil.compose)
 
     // Networking + serialization
-    implementation(libs.okhttp)
-    implementation(libs.okhttp.logging)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.play.services)
@@ -205,6 +201,8 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.ai)
+    implementation(libs.firebase.appcheck.playintegrity)
 
     // Permissions
     implementation(libs.accompanist.permissions)

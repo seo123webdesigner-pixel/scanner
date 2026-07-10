@@ -27,7 +27,7 @@ The source of truth for product behavior is the four input files in the repo roo
 - **App name:** Snapdoc.
 - **Package / applicationId:** `com.snapdoc.app` (debug and release — the `.debug` suffix was deliberately removed so a single Firebase app registration covers both).
 - **Min SDK:** API 26. **Target SDK:** API 35.
-- **Tech stack (do not substitute without asking):** Kotlin 2.1, Jetpack Compose, Material 3, Hilt, Room, DataStore Preferences, Coroutines + Flow, OkHttp, kotlinx.serialization, Coil, Timber, ML Kit Document Scanner, ML Kit Text Recognition v2, Gemini Flash via REST, AdMob, Play Billing v7, Firebase Analytics + Crashlytics.
+- **Tech stack (do not substitute without asking):** Kotlin 2.1, Jetpack Compose, Material 3, Hilt, Room, DataStore Preferences, Coroutines + Flow, kotlinx.serialization, Coil, Timber, ML Kit Document Scanner, ML Kit Text Recognition v2, Gemini Flash via Firebase AI Logic + App Check, AdMob, Play Billing v7, Firebase Analytics + Crashlytics.
 - **Monetization:** free + ads, one-time IAP "Remove Ads" at ₹99 / $1.49, product ID `snapdoc_remove_ads`.
 - **Privacy contract — non-negotiable:** Document images **never leave the device**. Only extracted OCR text is sent to Gemini, and only when the user explicitly invokes AI Summary or auto-categorization. This is enforced at one chokepoint, `core/network/GeminiClient.kt` — every public method on that class takes a `String` (OCR text). Do not add an overload that takes a Bitmap, Uri, byte[], or filename without explicit user sign-off.
 
@@ -54,7 +54,7 @@ app/src/main/java/com/snapdoc/app/
 │   │   ├── repository/          — Document/Ocr/Summary/Category repos
 │   │   ├── model/               — Document, Page, AiSummary, BuiltInCategory
 │   │   └── Mappers.kt           — entity ↔ domain model
-│   ├── network/GeminiClient.kt  — REST client with redacting OkHttp interceptor
+│   ├── network/GeminiClient.kt  — Firebase AI Logic client (no embedded API key)
 │   ├── ml/OcrEngine.kt          — ML Kit Text Recognition wrapper (Latin + Devanagari)
 │   ├── ads/
 │   │   ├── AdsManager.kt        — initializes AdMob, preloads interstitial + rewarded
@@ -92,7 +92,7 @@ Tests live in `app/src/test/java/...` (unit) and `app/src/androidTest/java/...` 
 - DataStore preferences (onboarding flag, auto-OCR, AI suggestion, save count, ads owned).
 - ML Kit Document Scanner integration via `ActivityResultContracts.StartIntentSenderForResult`.
 - ML Kit Text Recognition v2 (Latin + Devanagari run in parallel; longest result wins).
-- Gemini REST client with retry (3 attempts, 1s/2s/4s) and a redacting OkHttp interceptor.
+- Gemini client (Firebase AI Logic) with retry (3 attempts, 1s/2s/4s); only call outcomes are logged, never prompt/response bodies.
 - AdMob initialization, interstitial preload, rewarded preload, banner composable.
 - Play Billing v7 connection, product query, purchase launch, restore, acknowledgement.
 - Firebase Analytics + Crashlytics (plugins enabled; user has dropped `google-services.json` in `app/`).
@@ -147,7 +147,7 @@ These were live-debugged with the user during the previous session. They are del
 ## 5. External setup state (from the user)
 
 - **Firebase project:** Created. Registered with package `com.snapdoc.app`. `google-services.json` is in `app/`. Plugins are enabled in `app/build.gradle.kts`.
-- **Gemini API key:** Set in `local.properties` as `GEMINI_API_KEY`. AI Summary and auto-categorization are live.
+- **Gemini access:** Via Firebase AI Logic (Gemini Developer API backend) + App Check/Play Integrity — no API key in the app or repo. Enabled once in the Firebase console under Build → AI Logic and Build → App Check. AI Summary and auto-categorization are live.
 - **AdMob IDs:** Debug builds use Google's official test IDs (hardcoded in `app/build.gradle.kts` as `AdMobTestIds.*`). User plans to swap in real IDs in `local.properties` in a later session.
 - **Signing keystore:** Not yet created. Release config only signs when `RELEASE_KEYSTORE_PATH` is set.
 - **`snapdoc_remove_ads` IAP product:** Not yet created in Play Console. Paywall will load with no live price until then; Buy button will fail. Not blocking until Play submission.
@@ -252,7 +252,7 @@ Do **not** start a deep refactor or rename without checking with the user first.
 - Privacy contract is the brand — visible on onboarding and in the Play Store listing. Any change that risks exposing user document data must be flagged loudly.
 - The "Geist font not bundled" and "AGPL password-protect blocker" are KNOWN deferrals the user agreed to. Don't surface them as new issues.
 - Firebase is now active. Don't reintroduce the "uncomment the plugin lines" instruction.
-- Gemini key is set. AI Summary + auto-categorization should "just work."
+- Gemini access is via Firebase AI Logic + App Check, not an embedded API key — don't reintroduce a `GEMINI_API_KEY` in `local.properties`/`BuildConfig`. AI Summary + auto-categorization should "just work" once AI Logic + App Check are enabled in the Firebase console.
 - All three ad surfaces are mounted and using test IDs. User will swap in real IDs in a future session.
 
 ---
@@ -265,6 +265,6 @@ After pasting this handoff, you should be able to answer without re-reading the 
 - What were the eight build fixes already applied? (see §4)
 - Which screens are stubbed vs functional? (see §3)
 - Where do I commit? (branch `claude/setup-android-clean-architecture-cNGeQ`, no PR)
-- What's the user's external setup state? (see §5: Firebase live, Gemini key set, test ad IDs in debug)
+- What's the user's external setup state? (see §5: Firebase live, Gemini via AI Logic + App Check, test ad IDs in debug)
 
 If you can't answer those, re-read this file before touching code.
